@@ -1,0 +1,307 @@
+/* SPEED UNLIMITED - Custom Theme */
+/* Speed Unlimited brand colors and custom styling */
+
+:root {
+  --speed-red: #E31E24;
+  --speed-black: #000000;
+  --speed-white: #FFFFFF;
+  --speed-gray-50: #F9FAFB;
+  --speed-gray-100: #F3F4F6;
+  --speed-gray-200: #E5E7EB;
+  --speed-gray-300: #D1D5DB;
+  --speed-gray-400: #9CA3AF;
+  --speed-gray-500: #6B7280;
+  --speed-gray-600: #4B5563;
+  --speed-gray-700: #374151;
+  --speed-gray-800: #1F2937;
+  --speed-gray-900: #111827;
+  --speed-success: #10B981;
+  --speed-warning: #F59E0B;
+  --speed-danger: #EF4444;
+  --speed-info: #3B82F6;
+}
+
+/* Override PrimeReact primary color */
+.p-component {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+}
+
+/* Primary buttons - Speed Red */
+.p-button:not(.p-button-outlined):not(.p-button-text) {
+  background-color: var(--speed-red) !important;
+  border-color: var(--speed-red) !important;
+}
+
+.p-button:not(.p-button-outlined):not(.p-button-text):hover {
+  background-color: #C11A1F !important;
+  border-color: #C11A1F !important;
+}
+
+.p-button-success {
+  background-color: var(--speed-success) !important;
+  border-color: var(--speed-success) !important;
+}
+
+.p-button-warning {
+  background-color: var(--speed-warning) !important;
+  border-color: var(--speed-warning) !important;
+}
+
+.p-button-danger {
+  background-color: var(--speed-danger) !important;
+  border-color: var(--speed-danger) !important;
+}
+
+/* Action buttons - GRAY background with RED icon (better contrast) */
+.action-button {
+  background-color: #E5E7EB !important;
+  border: 1px solid var(--speed-gray-300) !important;
+  color: #E31E24 !important;
+  min-height: 44px;
+  min-width: 44px;
+  transition: all 0.2s ease;
+}
+
+.action-button:hover {
+  background-color: var(--speed-gray-300) !important;
+  border-color: #E31E24 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* All action buttons use red icon color */
+.action-button.view-button,
+.action-button.edit-button,
+.action-button.delete-button {
+  color: #E31E24 !important;
+}
+
+.action-button .pi {
+  color: #E31E24 !important;
+}
+
+/* Clickable rows */
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clickable-row:hover {
+  background-color: var(--speed-gray-50) !important;
+}
+
+/* DataTable styling */
+.p-datatable .p-datatable-thead > tr > th {
+  background-color: var(--speed-gray-100);
+  color: var(--speed-gray-900);
+  font-weight: 600;
+  border-bottom: 2px solid var(--speed-gray-300);
+}
+
+.p-datatable .p-datatable-tbody > tr {
+  transition: background-color 0.2s;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  background-color: var(--speed-gray-50);
+}
+
+/* Tags/Badges */
+.p-tag {
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+}
+
+.p-tag.p-tag-success {
+  background-color: var(--speed-success);
+}
+
+.p-tag.p-tag-warning {
+  background-color: var(--speed-warning);
+}
+
+.p-tag.p-tag-danger {
+  background-color: var(--speed-danger);
+}
+
+.p-tag.p-tag-info {
+  background-color: var(--speed-info);
+}
+
+/* Cards */
+.p-card {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border-radius: 0.5rem;
+  border: 1px solid var(--speed-gray-200);
+}
+
+.p-card .p-card-title {
+  color: var(--speed-gray-900);
+  font-weight: 700;
+}
+
+.p-card .p-card-subtitle {
+  color: var(--speed-gray-600);
+}
+
+/* Input focus */
+.p-inputtext:enabled:focus {
+  border-color: var(--speed-red) !important;
+  box-shadow: 0 0 0 0.2rem rgba(227, 30, 36, 0.2) !important;
+}
+
+.p-dropdown:not(.p-disabled).p-focus {
+  border-color: var(--speed-red) !important;
+  box-shadow: 0 0 0 0.2rem rgba(227, 30, 36, 0.2) !important;
+}
+
+/* Menu/Sidebar active item */
+.p-menu .p-menuitem-link:not(.p-disabled):hover {
+  background-color: var(--speed-gray-100);
+}
+
+.p-menu .p-menuitem-link.active {
+  background-color: var(--speed-red);
+  color: var(--speed-white);
+}
+
+/* Dialog */
+.p-dialog .p-dialog-header {
+  background-color: var(--speed-gray-50);
+  border-bottom: 1px solid var(--speed-gray-200);
+}
+
+/* Toast messages */
+.p-toast .p-toast-message.p-toast-message-success {
+  background-color: var(--speed-success);
+  border: solid var(--speed-success);
+  border-width: 0 0 0 6px;
+  color: #ffffff;
+}
+
+.p-toast .p-toast-message.p-toast-message-error {
+  background-color: var(--speed-danger);
+  border: solid var(--speed-danger);
+  border-width: 0 0 0 6px;
+  color: #ffffff;
+}
+
+.p-toast .p-toast-message.p-toast-message-warn {
+  background-color: var(--speed-warning);
+  border: solid var(--speed-warning);
+  border-width: 0 0 0 6px;
+  color: #ffffff;
+}
+
+.p-toast .p-toast-message.p-toast-message-info {
+  background-color: var(--speed-info);
+  border: solid var(--speed-info);
+  border-width: 0 0 0 6px;
+  color: #ffffff;
+}
+
+/* Paginator */
+.p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background-color: var(--speed-red);
+  border-color: var(--speed-red);
+  color: #ffffff;
+}
+
+/* Calendar */
+.p-datepicker table td > span.p-highlight {
+  background-color: var(--speed-red);
+  color: #ffffff;
+}
+
+/* ProgressBar */
+.p-progressbar .p-progressbar-value {
+  background-color: var(--speed-red);
+}
+
+/* Checkbox */
+.p-checkbox .p-checkbox-box.p-highlight {
+  border-color: var(--speed-red);
+  background: var(--speed-red);
+}
+
+/* Radio button */
+.p-radiobutton .p-radiobutton-box.p-highlight {
+  border-color: var(--speed-red);
+  background: var(--speed-red);
+}
+
+/* Utility classes */
+.text-speed-red {
+  color: var(--speed-red);
+}
+
+.bg-speed-red {
+  background-color: var(--speed-red);
+}
+
+.border-speed-red {
+  border-color: var(--speed-red);
+}
+
+.text-success {
+  color: var(--speed-success);
+}
+
+.text-warning {
+  color: var(--speed-warning);
+}
+
+.text-danger {
+  color: var(--speed-danger);
+}
+
+.text-info {
+  color: var(--speed-info);
+}
+
+/* Stat cards */
+.stat-card {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: var(--speed-white);
+  border: 1px solid var(--speed-gray-200);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.stat-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-card-title {
+  font-size: 0.875rem;
+  color: var(--speed-gray-600);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-card-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--speed-gray-900);
+  margin: 0.5rem 0;
+}
+
+.stat-card-icon {
+  font-size: 2.5rem;
+  opacity: 0.2;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .stat-card-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-card-icon {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,402 @@
+/* SPEED UNLIMITED - Layout Styles */
+
+/* ====================
+   LOGIN PAGE
+   ==================== */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--speed-gray-100);
+  padding: 2rem;
+}
+
+.login-box {
+  background: var(--speed-white);
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 450px;
+  width: 100%;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-logo h1 {
+  font-size: 2.5rem;
+  color: var(--speed-gray-900);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.login-logo p {
+  color: var(--speed-gray-600);
+  font-size: 1rem;
+}
+
+/* ====================
+   ADMIN LAYOUT (Desktop)
+   ==================== */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--speed-gray-50);
+}
+
+.admin-sidebar {
+  width: 260px;
+  background: var(--speed-white);
+  border-right: 1px solid var(--speed-gray-200);
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.admin-sidebar-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--speed-gray-200);
+  background: var(--speed-gray-50);
+}
+
+.admin-sidebar-header h2 {
+  font-size: 1.5rem;
+  color: var(--speed-gray-900);
+  margin: 0;
+  font-weight: 700;
+}
+
+.admin-sidebar-header p {
+  color: var(--speed-gray-600);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.admin-menu {
+  padding: 1rem 0;
+}
+
+.admin-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.875rem 1.5rem;
+  color: var(--speed-gray-700);
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.admin-menu-item:hover {
+  background: var(--speed-gray-50);
+  color: var(--speed-gray-900);
+}
+
+.admin-menu-item.active {
+  background: rgba(227, 30, 36, 0.1);
+  color: var(--speed-red);
+  border-left-color: var(--speed-red);
+  font-weight: 600;
+}
+
+.admin-menu-item i {
+  margin-right: 0.75rem;
+  font-size: 1.125rem;
+}
+
+.admin-main {
+  margin-left: 260px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.admin-topbar {
+  background: var(--speed-white);
+  border-bottom: 1px solid var(--speed-gray-200);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.admin-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-content {
+  padding: 2rem;
+  flex: 1;
+}
+
+/* ====================
+   REPARTIDOR LAYOUT (Mobile)
+   ==================== */
+.repartidor-layout {
+  min-height: 100vh;
+  background: var(--speed-gray-50);
+  padding-bottom: 70px; /* Space for bottom nav */
+}
+
+.repartidor-header {
+  background: var(--speed-red);
+  color: var(--speed-white);
+  padding: 1rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.repartidor-header h1 {
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.repartidor-header p {
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+  opacity: 0.9;
+}
+
+.repartidor-content {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.repartidor-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--speed-white);
+  border-top: 1px solid var(--speed-gray-200);
+  display: flex;
+  justify-content: space-around;
+  padding: 0.5rem 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.repartidor-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  color: var(--speed-gray-600);
+  text-decoration: none;
+  transition: all 0.2s;
+  font-size: 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.repartidor-nav-item:hover {
+  color: var(--speed-red);
+}
+
+.repartidor-nav-item.active {
+  color: var(--speed-red);
+  font-weight: 600;
+}
+
+.repartidor-nav-item i {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+/* ====================
+   CONTADOR LAYOUT (Desktop - Read Only)
+   ==================== */
+.contador-layout {
+  min-height: 100vh;
+  background: var(--speed-gray-50);
+}
+
+.contador-header {
+  background: var(--speed-white);
+  border-bottom: 1px solid var(--speed-gray-200);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.contador-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ====================
+   ZONE SELECTION
+   ==================== */
+.zone-selection-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--speed-gray-50);
+  padding: 2rem;
+}
+
+.zone-selection-box {
+  background: var(--speed-white);
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  width: 100%;
+}
+
+.zone-selection-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.zone-selection-title h1 {
+  font-size: 2rem;
+  color: var(--speed-gray-900);
+  margin-bottom: 0.5rem;
+}
+
+.zone-selection-title p {
+  color: var(--speed-gray-600);
+}
+
+.zone-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.zone-card {
+  padding: 2rem;
+  border: 2px solid var(--speed-gray-200);
+  border-radius: 0.75rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--speed-white);
+}
+
+.zone-card:hover {
+  border-color: var(--speed-red);
+  box-shadow: 0 4px 12px rgba(227, 30, 36, 0.2);
+  transform: translateY(-4px);
+}
+
+.zone-card.selected {
+  border-color: var(--speed-red);
+  background: rgba(227, 30, 36, 0.05);
+}
+
+.zone-card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.zone-card-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--speed-gray-900);
+  margin: 0;
+}
+
+/* ====================
+   MOBILE RESPONSIVENESS
+   ==================== */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .admin-main {
+    margin-left: 0;
+  }
+
+  .admin-topbar {
+    padding: 1rem;
+  }
+
+  .admin-content {
+    padding: 1rem;
+  }
+
+  .login-box {
+    padding: 2rem 1.5rem;
+  }
+
+  .zone-selection-box {
+    padding: 2rem 1.5rem;
+  }
+
+  .zone-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ====================
+   UTILITY CLASSES
+   ==================== */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  color: var(--speed-gray-900);
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+}
+
+.page-header p {
+  color: var(--speed-gray-600);
+  margin: 0;
+}
+
+.section-header {
+  margin: 2rem 0 1rem 0;
+}
+
+.section-header h2 {
+  font-size: 1.5rem;
+  color: var(--speed-gray-900);
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.section-header p {
+  color: var(--speed-gray-600);
+  margin: 0;
+  font-size: 0.875rem;
+}
