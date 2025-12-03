@@ -4,9 +4,12 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
+import { InputNumber } from 'primereact/inputnumber';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { useAuth } from '../../context/AuthContext';
 import { mockClients, mockOrders } from '../../services/mockData';
-import { ZONES } from '../../utils/constants';
+import { ZONES, PRODUCTS, PRICE_LISTS } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 
 const RepartidorClientes = () => {
@@ -14,6 +17,11 @@ const RepartidorClientes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClient, setSelectedClient] = useState(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [showNewOrderDialog, setShowNewOrderDialog] = useState(false);
+
+  // New order state
+  const [orderItems, setOrderItems] = useState([]);
+  const [orderNotes, setOrderNotes] = useState('');
 
   // Get repartidor's assigned zone (mock: Juan = Zona Sur, Pedro = San Telmo)
   const myZone = user.id === 1 ? ZONES.SUR.id : ZONES.SAN_TELMO.id;
@@ -32,6 +40,81 @@ const RepartidorClientes = () => {
     setShowDetailDialog(true);
   };
 
+  const handleCargarPedido = (client) => {
+    setSelectedClient(client);
+    setOrderItems([]);
+    setOrderNotes('');
+    setShowDetailDialog(false);
+    setShowNewOrderDialog(true);
+  };
+
+  const handleAddProduct = () => {
+    const newItem = {
+      productId: null,
+      productName: '',
+      quantity: 1,
+      pricePerUnit: 0,
+      priceList: selectedClient?.priceList || PRICE_LISTS.LISTA_B,
+      subtotal: 0
+    };
+    setOrderItems([...orderItems, newItem]);
+  };
+
+  const handleRemoveProduct = (index) => {
+    const newItems = orderItems.filter((_, i) => i !== index);
+    setOrderItems(newItems);
+  };
+
+  const handleProductChange = (index, field, value) => {
+    const newItems = [...orderItems];
+    newItems[index][field] = value;
+
+    // If product is selected, update related fields
+    if (field === 'productId' && value) {
+      const product = PRODUCTS.find(p => p.id === value);
+      if (product) {
+        newItems[index].productName = product.name;
+        const priceList = selectedClient?.priceList || PRICE_LISTS.LISTA_B;
+        newItems[index].pricePerUnit = product.prices[priceList] || 0;
+      }
+    }
+
+    // Recalculate subtotal
+    newItems[index].subtotal = newItems[index].quantity * newItems[index].pricePerUnit;
+
+    setOrderItems(newItems);
+  };
+
+  const calculateOrderTotal = () => {
+    return orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+  };
+
+  const handleSaveOrder = () => {
+    if (orderItems.length === 0) {
+      alert('Debe agregar al menos un producto');
+      return;
+    }
+
+    const newOrder = {
+      clientId: selectedClient.id,
+      clientName: selectedClient.name,
+      clientAddress: selectedClient.address,
+      zone: selectedClient.zone,
+      repartidorId: user.id,
+      repartidorName: user.name,
+      items: orderItems,
+      total: calculateOrderTotal(),
+      notes: orderNotes,
+      createdAt: new Date().toISOString()
+    };
+
+    console.log('Guardando nuevo pedido:', newOrder);
+    alert('Pedido cargado exitosamente');
+    setShowNewOrderDialog(false);
+    setOrderItems([]);
+    setOrderNotes('');
+  };
+
   // Get client's recent orders
   const getClientOrders = (clientId) => {
     return mockOrders
@@ -39,6 +122,15 @@ const RepartidorClientes = () => {
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, 5);
   };
+
+  // Product options for dropdown
+  const productOptions = PRODUCTS.map(p => {
+    const priceList = selectedClient?.priceList || PRICE_LISTS.LISTA_B;
+    return {
+      label: `${p.name} - ${formatCurrency(p.prices[priceList])}`,
+      value: p.id
+    };
+  });
 
   return (
     <div className="p-3">
@@ -194,12 +286,168 @@ const RepartidorClientes = () => {
               )}
             </div>
 
-            <div className="flex gap-2 justify-content-end">
+            <div className="flex gap-2 justify-content-between">
+              <Button
+                label="Cargar Pedido"
+                icon="pi pi-plus-circle"
+                className="p-button-danger"
+                onClick={() => handleCargarPedido(selectedClient)}
+              />
               <Button
                 label="Cerrar"
                 icon="pi pi-times"
                 className="p-button-secondary"
                 onClick={() => setShowDetailDialog(false)}
+              />
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      {/* New Order Dialog */}
+      <Dialog
+        header={
+          <div className="flex align-items-center gap-2">
+            <i className="pi pi-shopping-cart text-2xl" style={{ color: '#E31E24' }}></i>
+            <span>Cargar Nuevo Pedido</span>
+          </div>
+        }
+        visible={showNewOrderDialog}
+        onHide={() => setShowNewOrderDialog(false)}
+        style={{ width: '90vw', maxWidth: '800px' }}
+        modal
+        maximizable
+      >
+        {selectedClient && (
+          <div className="p-fluid">
+            {/* Client Info */}
+            <div className="mb-4 p-3 bg-gray-50 border-round">
+              <div className="flex align-items-center gap-2 mb-2">
+                <i className="pi pi-user text-xl" style={{ color: '#E31E24' }}></i>
+                <h3 className="m-0">{selectedClient.name}</h3>
+              </div>
+              <div className="text-sm text-gray-600">
+                <i className="pi pi-map-marker mr-2"></i>
+                {selectedClient.address}
+              </div>
+              <div className="text-sm mt-2">
+                <strong>Lista de Precios:</strong> {selectedClient.priceList}
+              </div>
+            </div>
+
+            {/* Products Section */}
+            <div className="mb-4">
+              <div className="flex justify-content-between align-items-center mb-3">
+                <h3 className="m-0">📦 Productos del Pedido</h3>
+                <Button
+                  label="Agregar Producto"
+                  icon="pi pi-plus"
+                  className="p-button-sm p-button-success"
+                  onClick={handleAddProduct}
+                />
+              </div>
+
+              {orderItems.length === 0 ? (
+                <div className="text-center py-4 bg-gray-50 border-round">
+                  <i className="pi pi-inbox text-4xl text-gray-400 mb-2"></i>
+                  <p className="text-gray-600">No hay productos agregados</p>
+                  <Button
+                    label="Agregar Primer Producto"
+                    icon="pi pi-plus"
+                    className="p-button-sm"
+                    onClick={handleAddProduct}
+                  />
+                </div>
+              ) : (
+                orderItems.map((item, index) => (
+                  <div key={index} className="mb-3 p-3 border-1 border-gray-300 border-round">
+                    <div className="grid">
+                      <div className="col-12 md:col-6 mb-2">
+                        <label className="font-bold mb-2 block">Producto</label>
+                        <Dropdown
+                          value={item.productId}
+                          options={productOptions}
+                          onChange={(e) => handleProductChange(index, 'productId', e.value)}
+                          placeholder="Seleccionar producto"
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div className="col-12 md:col-3 mb-2">
+                        <label className="font-bold mb-2 block">Cantidad</label>
+                        <InputNumber
+                          value={item.quantity}
+                          onValueChange={(e) => handleProductChange(index, 'quantity', e.value)}
+                          min={1}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div className="col-12 md:col-3 mb-2">
+                        <label className="font-bold mb-2 block">Subtotal</label>
+                        <div className="flex align-items-center gap-2 h-full">
+                          <span className="font-bold text-lg">{formatCurrency(item.subtotal)}</span>
+                          <Button
+                            icon="pi pi-trash"
+                            className="p-button-danger p-button-sm p-button-text"
+                            onClick={() => handleRemoveProduct(index)}
+                            tooltip="Eliminar"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="col-12">
+                        <small className="text-gray-600">
+                          Precio unitario: {formatCurrency(item.pricePerUnit)}
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Total */}
+            {orderItems.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 border-round">
+                <div className="flex justify-content-between align-items-center">
+                  <h3 className="m-0">Total del Pedido:</h3>
+                  <div className="text-3xl font-bold" style={{ color: '#E31E24' }}>
+                    {formatCurrency(calculateOrderTotal())}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Notes */}
+            <div className="mb-4">
+              <label htmlFor="orderNotes" className="font-bold mb-2 block">
+                📝 Notas / Observaciones
+              </label>
+              <InputTextarea
+                id="orderNotes"
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                rows={3}
+                placeholder="Agregar notas sobre el pedido (opcional)..."
+                className="w-full"
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 justify-content-end">
+              <Button
+                label="Cancelar"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setShowNewOrderDialog(false)}
+              />
+              <Button
+                label="Guardar Pedido"
+                icon="pi pi-check"
+                className="p-button-danger"
+                onClick={handleSaveOrder}
+                disabled={orderItems.length === 0}
               />
             </div>
           </div>

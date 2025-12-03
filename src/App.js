@@ -19,14 +19,17 @@ import Productos from './pages/admin/Productos';
 import Pedidos from './pages/admin/Pedidos';
 import Repartidores from './pages/admin/Repartidores';
 import Rutas from './pages/admin/Rutas';
-import Cobranzas from './pages/admin/Cobranzas';
+import Cobros from './pages/admin/Cobros';
+import Gastos from './pages/admin/Gastos';
 import Facturacion from './pages/admin/Facturacion';
 import Reportes from './pages/admin/Reportes';
+import Configuracion from './pages/admin/Configuracion';
 
 // Repartidor Components
 import Home from './components/repartidor/Home';
 import RepartidorClientes from './pages/repartidor/Clientes';
 import RepartidorStock from './pages/repartidor/Stock';
+import RepartidorGastos from './pages/repartidor/Gastos';
 import RepartidorPerfil from './pages/repartidor/Perfil';
 
 // Constants
@@ -82,10 +85,11 @@ function App() {
               <Route path="pedidos" element={<Pedidos />} />
               <Route path="repartidores" element={<Repartidores />} />
               <Route path="rutas" element={<Rutas />} />
-              <Route path="cobranzas" element={<Cobranzas />} />
+              <Route path="cobros" element={<Cobros />} />
+              <Route path="gastos" element={<Gastos />} />
               <Route path="facturacion" element={<Facturacion />} />
               <Route path="reportes" element={<Reportes />} />
-              <Route path="config" element={<PlaceholderPage title="Configuración" />} />
+              <Route path="config" element={<Configuracion />} />
             </Route>
 
             {/* Repartidor Routes */}
@@ -101,6 +105,7 @@ function App() {
               <Route path="home" element={<Home />} />
               <Route path="clientes" element={<RepartidorClientes />} />
               <Route path="stock" element={<RepartidorStock />} />
+              <Route path="gastos" element={<RepartidorGastos />} />
               <Route path="perfil" element={<RepartidorPerfil />} />
               <Route path="cargar-pedido/:orderId?" element={<PlaceholderPage title="Cargar Pedido" />} />
               <Route path="registrar-pago/:orderId" element={<PlaceholderPage title="Registrar Pago" />} />

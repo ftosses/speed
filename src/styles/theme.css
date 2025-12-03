@@ -54,31 +54,40 @@
   border-color: var(--speed-danger) !important;
 }
 
-/* Action buttons - GRAY background with RED icon (better contrast) */
+/* Action buttons - WHITE/LIGHT GRAY background with DARK GRAY icon */
 .action-button {
-  background-color: #E5E7EB !important;
-  border: 1px solid var(--speed-gray-300) !important;
-  color: #E31E24 !important;
-  min-height: 44px;
-  min-width: 44px;
+  background-color: #F8F9FA !important;
+  border: 1px solid #E5E7EB !important;
+  color: #374151 !important;
+  min-height: 40px;
+  min-width: 40px;
+  border-radius: 6px !important;
   transition: all 0.2s ease;
+  padding: 0.5rem !important;
 }
 
 .action-button:hover {
-  background-color: var(--speed-gray-300) !important;
+  background-color: #F8F9FA !important;
   border-color: #E31E24 !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: none;
 }
 
-/* All action buttons use red icon color */
+/* All action buttons use dark gray icon color */
 .action-button.view-button,
 .action-button.edit-button,
 .action-button.delete-button {
-  color: #E31E24 !important;
+  color: #374151 !important;
 }
 
 .action-button .pi {
-  color: #E31E24 !important;
+  color: #374151 !important;
+  font-size: 1rem;
+}
+
+/* Action button hover state - icon stays dark gray */
+.action-button:hover .pi {
+  color: #374151 !important;
 }
 
 /* Clickable rows */

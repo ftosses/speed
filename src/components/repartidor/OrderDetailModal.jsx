@@ -1,231 +1,178 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { RadioButton } from 'primereact/radiobutton';
 import { InputNumber } from 'primereact/inputnumber';
-import { Toast } from 'primereact/toast';
+import { Calendar } from 'primereact/calendar';
+import { InputTextarea } from 'primereact/inputtextarea';
+import { Divider } from 'primereact/divider';
 import { formatCurrency } from '../../utils/helpers';
-import { PRODUCTS, PRICE_LISTS } from '../../utils/constants';
-import PaymentModal from './PaymentModal';
+import { mockClients } from '../../services/mockData';
 
 const OrderDetailModal = ({ visible, onHide, order: propOrder }) => {
+  // State management
   const [order, setOrder] = useState(propOrder);
-  const [deliveryStatus, setDeliveryStatus] = useState(propOrder?.status || 'pendiente');
-  const [paymentStatus, setPaymentStatus] = useState(propOrder?.paymentStatus || 'pendiente');
-  const [editMode, setEditMode] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [editedItems, setEditedItems] = useState([]);
-  const [discountPercent, setDiscountPercent] = useState(propOrder?.discountPercent || 0);
-  const toastRef = React.useRef(null);
+  const [deliveryDate, setDeliveryDate] = useState(null);
+  const [deliveryStatus, setDeliveryStatus] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paidFullAmount, setPaidFullAmount] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [comments, setComments] = useState('');
+  const [showRemitoButton, setShowRemitoButton] = useState(false);
 
   useEffect(() => {
     if (propOrder) {
       setOrder(propOrder);
-      setDeliveryStatus(propOrder.status || 'pendiente');
-      setPaymentStatus(propOrder.paymentStatus || 'pendiente');
       setEditedItems(propOrder.items ? [...propOrder.items] : []);
-      setDiscountPercent(propOrder.discountPercent || 0);
+      setDeliveryDate(propOrder.createdAt ? new Date(propOrder.createdAt) : new Date());
+      setDeliveryStatus('');
+      setPaymentMethod('');
+      setPaidFullAmount('');
+      setDiscountPercent(0);
+      setComments(propOrder.notes || '');
+      setShowRemitoButton(false);
     }
   }, [propOrder]);
 
-  if (!order || !order.client) return null;
-
-  const { client } = order;
-
-  const deliveryStatusOptions = [
-    { label: 'Pendiente', value: 'pendiente' },
-    { label: 'Entregado', value: 'entregado' },
-    { label: 'No entregado', value: 'no_entregado' }
-  ];
-
-  const paymentStatusOptions = [
-    { label: 'Pendiente', value: 'pendiente' },
-    { label: 'Pagado', value: 'pagado' },
-    { label: 'No pagó', value: 'no_pago' }
-  ];
-
-  const handleMarkAsDelivered = () => {
-    setDeliveryStatus('entregado');
-    if (toastRef.current) {
-      toastRef.current.show({
-        severity: 'success',
-        summary: 'Actualizado',
-        detail: 'Pedido marcado como entregado',
-        life: 3000
-      });
+  // Handle payment flow completion
+  useEffect(() => {
+    if (deliveryStatus === 'entregado' && paymentMethod) {
+      if (paymentMethod === 'efectivo') {
+        setShowRemitoButton(true);
+      } else if (paymentMethod === 'eft_trans' && paidFullAmount) {
+        setShowRemitoButton(true);
+      } else if (paymentMethod === 'eft_trans' && !paidFullAmount) {
+        // EFT/TRANS selected but payment confirmation not yet completed
+        setShowRemitoButton(false);
+      } else if (paymentMethod === 'no_pago') {
+        setShowRemitoButton(false);
+      } else {
+        // Any other case - hide button
+        setShowRemitoButton(false);
+      }
+    } else {
+      setShowRemitoButton(false);
     }
+  }, [deliveryStatus, paymentMethod, paidFullAmount]);
+
+  if (!order) return null;
+
+  // Get client info
+  const client = mockClients.find(c => c.id === order.clientId) || {
+    name: order.clientName,
+    address: order.clientAddress,
+    phone: '11-0000-0000'
   };
 
-  const handleItemQuantityChange = (itemIndex, newQuantity) => {
-    const updatedItems = [...editedItems];
-    updatedItems[itemIndex] = {
-      ...updatedItems[itemIndex],
-      quantity: newQuantity,
-      subtotal: updatedItems[itemIndex].pricePerUnit * newQuantity
-    };
-    setEditedItems(updatedItems);
+  // Calculate totals
+  const calculateSubtotal = () => {
+    return editedItems.reduce((sum, item) => sum + item.subtotal, 0);
   };
 
-  const handleRemoveItem = (itemIndex) => {
-    const updatedItems = editedItems.filter((_, index) => index !== itemIndex);
-    setEditedItems(updatedItems);
+  const calculateDiscount = () => {
+    return (calculateSubtotal() * discountPercent) / 100;
   };
 
-  const handleSaveChanges = () => {
-    const newSubtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-    const newDiscount = (newSubtotal * discountPercent) / 100;
-    const newTotal = newSubtotal - newDiscount;
-
-    setOrder({
-      ...order,
-      items: editedItems,
-      subtotal: newSubtotal,
-      discountPercent,
-      discount: newDiscount,
-      total: newTotal
-    });
-
-    setEditMode(false);
-    if (toastRef.current) {
-      toastRef.current.show({
-        severity: 'success',
-        summary: 'Guardado',
-        detail: 'Cambios guardados correctamente',
-        life: 3000
-      });
-    }
+  const calculateTotal = () => {
+    return calculateSubtotal() - calculateDiscount();
   };
 
-  const calculateCurrentTotal = () => {
-    const subtotal = editedItems.reduce((sum, item) => sum + item.subtotal, 0);
-    const discount = (subtotal * discountPercent) / 100;
-    return { subtotal, discount, total: subtotal - discount };
+  // Handle quantity changes
+  const handleQuantityChange = (index, delta) => {
+    const newItems = [...editedItems];
+    const newQuantity = Math.max(0, newItems[index].quantity + delta);
+    newItems[index].quantity = newQuantity;
+    newItems[index].subtotal = newQuantity * newItems[index].pricePerUnit;
+    setEditedItems(newItems);
   };
 
-  const handleRegisterPayment = () => {
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentConfirm = (paymentData) => {
-    setPaymentStatus('pagado');
-    setShowPaymentModal(false);
-
-    if (toastRef.current) {
-      toastRef.current.show({
-        severity: 'success',
-        summary: 'Pago registrado',
-        detail: 'El pago ha sido registrado correctamente',
-        life: 3000
-      });
-    }
+  // Handle price changes
+  const handlePriceChange = (index, value) => {
+    const newItems = [...editedItems];
+    newItems[index].pricePerUnit = value || 0;
+    newItems[index].subtotal = newItems[index].quantity * newItems[index].pricePerUnit;
+    setEditedItems(newItems);
   };
 
   const handleDownloadRemito = () => {
-    if (toastRef.current) {
-      toastRef.current.show({
-        severity: 'warning',
-        summary: '⚠️ Datos incompletos',
-        detail: 'Generando remito. Admin facturará después.',
-        life: 3000
-      });
-    }
-
+    console.log('Descargando remito...');
+    alert('Remito descargado exitosamente');
     // Simulate PDF download
-    setTimeout(() => {
-      window.open('/mock-remito.pdf', '_blank');
-      if (toastRef.current) {
-        toastRef.current.show({
-          severity: 'success',
-          summary: 'Remito generado',
-          detail: 'Documento descargado correctamente',
-          life: 3000
-        });
-      }
-    }, 1500);
+    // window.open('/mock-remito.pdf', '_blank');
   };
 
-  const handleGenerateInvoice = () => {
-    if (toastRef.current) {
-      toastRef.current.show({
-        severity: 'info',
-        summary: 'Generando factura...',
-        detail: 'Conectando con AFIP...',
-        life: 2000
-      });
-    }
+  const handleSaveChanges = () => {
+    const updatedOrder = {
+      ...order,
+      items: editedItems,
+      createdAt: deliveryDate.toISOString(),
+      status: deliveryStatus === 'entregado' ? 'entregado' : 'consignacion',
+      paymentStatus: paymentMethod === 'no_pago' ? 'no_pago' : 'pagado',
+      paymentMethod: paymentMethod,
+      discountPercent: discountPercent,
+      discount: calculateDiscount(),
+      total: calculateTotal(),
+      notes: comments
+    };
 
-    // Simulate invoice generation
-    setTimeout(() => {
-      window.open('/mock-factura.pdf', '_blank');
-      if (toastRef.current) {
-        toastRef.current.show({
-          severity: 'success',
-          summary: 'Factura emitida ✅',
-          detail: 'Factura generada correctamente',
-          life: 3000
-        });
-      }
-    }, 1500);
+    console.log('Guardando cambios:', updatedOrder);
+    alert('Pedido actualizado exitosamente');
+    onHide();
   };
 
-  // Format Google Maps URL
   const mapsEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(client.address)}&output=embed`;
 
   return (
-    <>
-      <Toast ref={toastRef} />
-
-      <Dialog
-        visible={visible}
-        onHide={onHide}
-        header={
-          <div className="flex align-items-center gap-2">
-            <i className="pi pi-shopping-cart text-2xl"></i>
-            <span>Detalle del Pedido #{order.id}</span>
+    <Dialog
+      visible={visible}
+      onHide={onHide}
+      header={
+        <div className="flex align-items-center gap-2">
+          <i className="pi pi-shopping-cart text-2xl" style={{ color: '#E31E24' }}></i>
+          <div>
+            <div className="font-bold">Pedido {order.orderNumber}</div>
+            <div className="text-sm font-normal text-gray-600">{order.clientName}</div>
           </div>
-        }
-        style={{ width: '90vw', maxWidth: '900px' }}
-        modal
-        dismissableMask
-      >
-        <div>
-          {/* Client Info Section */}
-          <div className="mb-4 pb-3 border-bottom-1 border-gray-200">
-            <h3 className="text-xl font-bold mb-2">👤 {client.name}</h3>
-            <div className="grid">
-              <div className="col-12 md:col-6">
-                <div className="flex align-items-center gap-2 mb-2">
-                  <i className="pi pi-map-marker text-danger"></i>
-                  <span>{client.address}</span>
-                </div>
-                <div className="flex align-items-center gap-2 mb-2">
-                  <i className="pi pi-phone text-info"></i>
-                  <span>{client.phone}</span>
-                </div>
-                {client.email && (
-                  <div className="flex align-items-center gap-2">
-                    <i className="pi pi-envelope text-warning"></i>
-                    <span>{client.email}</span>
-                  </div>
-                )}
+        </div>
+      }
+      style={{ width: '100vw', height: '100vh', margin: 0 }}
+      contentStyle={{ height: 'calc(100vh - 140px)', overflow: 'auto' }}
+      maximized
+      modal
+    >
+      <div className="p-fluid">
+        {/* SECTION 1 - CLIENT INFO */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-3 flex align-items-center gap-2">
+            <i className="pi pi-user" style={{ color: '#E31E24' }}></i>
+            Información del Cliente
+          </h3>
+          <div className="grid mb-3">
+            <div className="col-12 md:col-6">
+              <div className="mb-2">
+                <strong>Nombre:</strong> {client.name}
               </div>
-              <div className="col-12 md:col-6">
-                <div className="text-sm text-gray-600">Saldo actual</div>
-                <div className={`text-2xl font-bold ${client.currentBalance >= 0 ? 'text-success' : 'text-danger'}`}>
-                  {formatCurrency(Math.abs(client.currentBalance))}
-                  {client.currentBalance < 0 && ' (DEBE)'}
-                </div>
+              <div className="mb-2">
+                <strong>Dirección:</strong> {client.address}
+              </div>
+              <div className="mb-2">
+                <strong>Teléfono:</strong> {client.phone}
               </div>
             </div>
-
-            {/* Google Maps */}
-            <div className="mt-3">
-              <h4 className="mb-2">🗺️ Ubicación</h4>
+            <div className="col-12 md:col-6">
+              <div className="flex justify-content-between align-items-center mb-2">
+                <strong>📍 Ubicación</strong>
+                <Button
+                  label="Abrir en Google Maps"
+                  icon="pi pi-map"
+                  className="p-button-sm p-button-outlined p-button-success"
+                  onClick={() => window.open(`https://maps.google.com/maps?q=${encodeURIComponent(client.address)}`, '_blank')}
+                />
+              </div>
               <iframe
                 width="100%"
-                height="300"
+                height="250"
                 frameBorder="0"
                 src={mapsEmbedUrl}
                 style={{ border: 0, borderRadius: '8px' }}
@@ -234,201 +181,329 @@ const OrderDetailModal = ({ visible, onHide, order: propOrder }) => {
               ></iframe>
             </div>
           </div>
+        </div>
 
-          {/* Order Details Section */}
-          <div className="mb-4 pb-3 border-bottom-1 border-gray-200">
-            <h3 className="text-lg font-bold mb-3">📦 Detalle del Pedido</h3>
-            {editMode ? (
-              <div>
-                {editedItems.map((item, index) => (
-                  <div key={index} className="p-3 mb-2 border-1 border-gray-200 border-round">
-                    <div className="grid">
-                      <div className="col-12 md:col-6">
-                        <label className="block text-sm font-semibold mb-2">Producto</label>
-                        <div className="font-semibold">{item.productName}</div>
-                      </div>
-                      <div className="col-12 md:col-3">
-                        <label className="block text-sm font-semibold mb-2">Cantidad</label>
-                        <InputNumber
-                          value={item.quantity}
-                          onValueChange={(e) => handleItemQuantityChange(index, e.value)}
-                          min={0}
-                          className="w-full"
-                        />
-                      </div>
-                      <div className="col-12 md:col-2">
-                        <label className="block text-sm font-semibold mb-2">Precio Unit.</label>
-                        <div className="font-semibold">{formatCurrency(item.pricePerUnit)}</div>
-                      </div>
-                      <div className="col-12 md:col-1">
-                        <Button
-                          icon="pi pi-trash"
-                          className="p-button-danger p-button-text"
-                          onClick={() => handleRemoveItem(index)}
-                          tooltip="Eliminar"
-                        />
-                      </div>
+        <Divider />
+
+        {/* SECTION 2 - ORDER DETAILS */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-3 flex align-items-center gap-2">
+            <i className="pi pi-box" style={{ color: '#E31E24' }}></i>
+            Detalles del Pedido
+          </h3>
+          {editedItems.map((item, index) => (
+            <div key={index} className="grid mb-3 p-3 border-1 border-gray-300 border-round">
+              <div className="col-12 md:col-5">
+                <strong>{item.productName}</strong>
+              </div>
+              <div className="col-12 md:col-3">
+                <label className="block mb-2 text-sm">Cantidad</label>
+                <div className="flex align-items-center gap-2">
+                  <Button
+                    icon="pi pi-minus"
+                    className="p-button-rounded p-button-sm p-button-danger"
+                    onClick={() => handleQuantityChange(index, -1)}
+                  />
+                  <InputNumber
+                    value={item.quantity}
+                    onValueChange={(e) => {
+                      const newItems = [...editedItems];
+                      newItems[index].quantity = e.value || 0;
+                      newItems[index].subtotal = newItems[index].quantity * newItems[index].pricePerUnit;
+                      setEditedItems(newItems);
+                    }}
+                    min={0}
+                    className="w-full"
+                  />
+                  <Button
+                    icon="pi pi-plus"
+                    className="p-button-rounded p-button-sm p-button-success"
+                    onClick={() => handleQuantityChange(index, 1)}
+                  />
+                </div>
+              </div>
+              <div className="col-12 md:col-2">
+                <label className="block mb-2 text-sm">Precio Unit.</label>
+                <InputNumber
+                  value={item.pricePerUnit}
+                  onValueChange={(e) => handlePriceChange(index, e.value)}
+                  mode="currency"
+                  currency="ARS"
+                  locale="es-AR"
+                  className="w-full"
+                />
+              </div>
+              <div className="col-12 md:col-2">
+                <label className="block mb-2 text-sm">Subtotal</label>
+                <div className="text-xl font-bold">{formatCurrency(item.subtotal)}</div>
+              </div>
+            </div>
+          ))}
+
+          <div className="grid mt-3">
+            <div className="col-12 text-right">
+              <div className="text-lg mb-2">
+                <strong>Subtotal:</strong> {formatCurrency(calculateSubtotal())}
+              </div>
+              {discountPercent > 0 && (
+                <div className="text-lg mb-2 text-orange-500">
+                  <strong>Descuento ({discountPercent}%):</strong> -{formatCurrency(calculateDiscount())}
+                </div>
+              )}
+              <div className="text-2xl font-bold" style={{ color: '#E31E24' }}>
+                <strong>Total:</strong> {formatCurrency(calculateTotal())}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Divider />
+
+        {/* SECTION 3 - DELIVERY DATE */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-3 flex align-items-center gap-2">
+            <i className="pi pi-calendar" style={{ color: '#E31E24' }}></i>
+            Fecha de Entrega
+          </h3>
+          <Calendar
+            value={deliveryDate}
+            onChange={(e) => setDeliveryDate(e.value)}
+            dateFormat="dd/mm/yy"
+            showIcon
+            showTime
+            hourFormat="24"
+            className="w-full md:w-6"
+          />
+        </div>
+
+        <Divider />
+
+        {/* SECTION 4 - DELIVERY STATUS */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-3 flex align-items-center gap-2">
+            <i className="pi pi-check-circle" style={{ color: '#E31E24' }}></i>
+            Estado de la Entrega
+          </h3>
+          <div className="grid">
+            <div className="col-12 md:col-6 flex align-items-center">
+              <RadioButton
+                inputId="entregado"
+                name="deliveryStatus"
+                value="entregado"
+                onChange={(e) => {
+                  setDeliveryStatus(e.value);
+                  setPaymentMethod('');
+                  setPaidFullAmount('');
+                  setDiscountPercent(0);
+                  setShowRemitoButton(false);
+                }}
+                checked={deliveryStatus === 'entregado'}
+              />
+              <label htmlFor="entregado" className="ml-2 text-lg cursor-pointer">
+                ✅ Entregado/Pagado
+              </label>
+            </div>
+            <div className="col-12 md:col-6 flex align-items-center">
+              <RadioButton
+                inputId="consignacion"
+                name="deliveryStatus"
+                value="consignacion"
+                onChange={(e) => {
+                  setDeliveryStatus(e.value);
+                  setPaymentMethod('');
+                  setPaidFullAmount('');
+                  setDiscountPercent(0);
+                  setShowRemitoButton(false);
+                }}
+                checked={deliveryStatus === 'consignacion'}
+              />
+              <label htmlFor="consignacion" className="ml-2 text-lg cursor-pointer">
+                📦 Consignación
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 5 - PAYMENT FLOW (only if Entregado/Pagado) */}
+        {deliveryStatus === 'entregado' && (
+          <>
+            <Divider />
+            <div className="mb-4">
+              <h3 className="text-xl font-bold mb-3 flex align-items-center gap-2">
+                <i className="pi pi-wallet" style={{ color: '#E31E24' }}></i>
+                Método de Pago
+              </h3>
+
+              {/* Step 1 - Payment Method */}
+              <div className="grid mb-3">
+                <div className="col-12 md:col-4 flex align-items-center">
+                  <RadioButton
+                    inputId="efectivo"
+                    name="paymentMethod"
+                    value="efectivo"
+                    onChange={(e) => {
+                      setPaymentMethod(e.value);
+                      setPaidFullAmount('');
+                      setDiscountPercent(0);
+                    }}
+                    checked={paymentMethod === 'efectivo'}
+                  />
+                  <label htmlFor="efectivo" className="ml-2 text-lg cursor-pointer">
+                    💵 Efectivo
+                  </label>
+                </div>
+                <div className="col-12 md:col-4 flex align-items-center">
+                  <RadioButton
+                    inputId="eft_trans"
+                    name="paymentMethod"
+                    value="eft_trans"
+                    onChange={(e) => {
+                      setPaymentMethod(e.value);
+                      setPaidFullAmount('');
+                      setDiscountPercent(0);
+                    }}
+                    checked={paymentMethod === 'eft_trans'}
+                  />
+                  <label htmlFor="eft_trans" className="ml-2 text-lg cursor-pointer">
+                    🏦 EFT/TRANS
+                  </label>
+                </div>
+                <div className="col-12 md:col-4 flex align-items-center">
+                  <RadioButton
+                    inputId="no_pago"
+                    name="paymentMethod"
+                    value="no_pago"
+                    onChange={(e) => {
+                      setPaymentMethod(e.value);
+                      setPaidFullAmount('');
+                      setDiscountPercent(0);
+                    }}
+                    checked={paymentMethod === 'no_pago'}
+                  />
+                  <label htmlFor="no_pago" className="ml-2 text-lg cursor-pointer">
+                    ⏳ No pagó hoy
+                  </label>
+                </div>
+              </div>
+
+              {/* Step 2 - If EFT/TRANS selected */}
+              {paymentMethod === 'eft_trans' && (
+                <div className="mt-4 p-3 bg-blue-50 border-round">
+                  <h4 className="mb-3">¿Pagó el total?</h4>
+                  <div className="grid">
+                    <div className="col-12 md:col-6 flex align-items-center">
+                      <RadioButton
+                        inputId="paid_full"
+                        name="paidFullAmount"
+                        value="yes"
+                        onChange={(e) => {
+                          setPaidFullAmount(e.value);
+                          setDiscountPercent(0);
+                        }}
+                        checked={paidFullAmount === 'yes'}
+                      />
+                      <label htmlFor="paid_full" className="ml-2 cursor-pointer">
+                        ✅ Sí, pagó el total
+                      </label>
                     </div>
-                    <div className="mt-2 text-right">
-                      <span className="font-semibold">Subtotal: {formatCurrency(item.subtotal)}</span>
+                    <div className="col-12 md:col-6 flex align-items-center">
+                      <RadioButton
+                        inputId="paid_discount"
+                        name="paidFullAmount"
+                        value="no"
+                        onChange={(e) => setPaidFullAmount(e.value)}
+                        checked={paidFullAmount === 'no'}
+                      />
+                      <label htmlFor="paid_discount" className="ml-2 cursor-pointer">
+                        💰 No, le hice descuento
+                      </label>
                     </div>
                   </div>
-                ))}
-                <div className="mt-3 p-3 bg-gray-50 border-round">
-                  <div className="grid">
-                    <div className="col-12 md:col-6">
-                      <label className="block text-sm font-semibold mb-2">Descuento (%)</label>
+
+                  {/* Step 3a - Paid full */}
+                  {paidFullAmount === 'yes' && (
+                    <div className="mt-3 p-3 bg-green-50 border-round">
+                      <i className="pi pi-check-circle mr-2" style={{ color: '#22C55E' }}></i>
+                      <strong style={{ color: '#22C55E' }}>¡Pago completo registrado!</strong>
+                    </div>
+                  )}
+
+                  {/* Step 3b - Discount applied */}
+                  {paidFullAmount === 'no' && (
+                    <div className="mt-3 p-3 bg-orange-50 border-round">
+                      <label htmlFor="discount" className="block mb-2 font-bold">
+                        Descuento aplicado (%)
+                      </label>
                       <InputNumber
+                        id="discount"
                         value={discountPercent}
-                        onValueChange={(e) => setDiscountPercent(e.value)}
+                        onValueChange={(e) => setDiscountPercent(e.value || 0)}
                         min={0}
                         max={100}
                         suffix="%"
-                        className="w-full"
+                        className="w-full md:w-6"
                       />
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 flex justify-content-end">
-                  <Button
-                    label="Guardar Cambios"
-                    icon="pi pi-check"
-                    className="p-button-success"
-                    onClick={handleSaveChanges}
-                  />
-                </div>
-              </div>
-            ) : (
-              <>
-                <DataTable value={order.items || []} size="small">
-                  <Column field="productName" header="Producto" />
-                  <Column
-                    field="quantity"
-                    header="Cantidad"
-                    body={(rowData) => <span className="font-semibold">{rowData.quantity}</span>}
-                  />
-                  <Column
-                    field="pricePerUnit"
-                    header="Precio Unit."
-                    body={(rowData) => formatCurrency(rowData.pricePerUnit)}
-                  />
-                  <Column
-                    field="subtotal"
-                    header="Subtotal"
-                    body={(rowData) => <span className="font-semibold">{formatCurrency(rowData.subtotal)}</span>}
-                  />
-                </DataTable>
-
-                <div className="mt-3 flex flex-column align-items-end">
-                  <div className="flex gap-4 mb-2">
-                    <span>Subtotal:</span>
-                    <span className="font-semibold">{formatCurrency(order.subtotal || order.total)}</span>
-                  </div>
-                  {order.discountPercent > 0 && (
-                    <div className="flex gap-4 mb-2 text-warning">
-                      <span>Descuento ({order.discountPercent}%):</span>
-                      <span className="font-semibold">- {formatCurrency(order.discount || 0)}</span>
+                      <div className="mt-3 text-xl">
+                        <strong>Nuevo total: </strong>
+                        <span className="font-bold" style={{ color: '#E31E24' }}>
+                          {formatCurrency(calculateTotal())}
+                        </span>
+                      </div>
                     </div>
                   )}
-                  <div className="flex gap-4 text-2xl font-bold text-primary">
-                    <span>TOTAL:</span>
-                    <span>{formatCurrency(order.total)}</span>
-                  </div>
                 </div>
-              </>
-            )}
-          </div>
+              )}
 
-          {/* Status Section */}
-          <div className="mb-4 pb-3 border-bottom-1 border-gray-200">
-            <h3 className="text-lg font-bold mb-3">📊 Estado</h3>
-            <div className="grid">
-              <div className="col-12 md:col-6">
-                <label className="block text-sm font-semibold mb-2">Estado de Entrega</label>
-                <Dropdown
-                  value={deliveryStatus}
-                  options={deliveryStatusOptions}
-                  onChange={(e) => setDeliveryStatus(e.value)}
-                  className="w-full"
-                />
-              </div>
-              <div className="col-12 md:col-6">
-                <label className="block text-sm font-semibold mb-2">Estado de Pago</label>
-                <Dropdown
-                  value={paymentStatus}
-                  options={paymentStatusOptions}
-                  onChange={(e) => setPaymentStatus(e.value)}
-                  className="w-full"
-                />
-              </div>
+              {/* Download Remito Button */}
+              {showRemitoButton && (
+                <div className="mt-4 text-center">
+                  <Button
+                    label="📄 Descargar Remito"
+                    icon="pi pi-download"
+                    className="p-button-lg p-button-success"
+                    onClick={handleDownloadRemito}
+                  />
+                </div>
+              )}
             </div>
-          </div>
+          </>
+        )}
 
-          {/* Actions Section */}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              label="✏️ Editar Pedido"
-              icon="pi pi-pencil"
-              className="p-button-outlined"
-              onClick={() => setEditMode(!editMode)}
-            />
+        <Divider />
 
-            <Button
-              label="✅ Marcar como Entregado"
-              icon="pi pi-check"
-              className="p-button-success"
-              onClick={handleMarkAsDelivered}
-              disabled={deliveryStatus === 'entregado'}
-            />
-
-            <Button
-              label="💰 Registrar Pago"
-              icon="pi pi-wallet"
-              className="p-button-warning"
-              onClick={handleRegisterPayment}
-            />
-
-            {!client.hasCompleteData ? (
-              <Button
-                label="📄 Descargar Remito PDF"
-                icon="pi pi-file-pdf"
-                className="p-button-secondary"
-                onClick={handleDownloadRemito}
-              />
-            ) : (
-              <Button
-                label="📄 Generar Factura"
-                icon="pi pi-file"
-                className="p-button-info"
-                onClick={handleGenerateInvoice}
-                disabled={paymentStatus !== 'pagado'}
-              />
-            )}
-          </div>
-
-          {!client.hasCompleteData && (
-            <div className="mt-3 p-3 bg-yellow-50 border-round">
-              <div className="flex align-items-center gap-2 mb-2">
-                <i className="pi pi-exclamation-triangle text-warning"></i>
-                <span className="font-semibold">Datos fiscales incompletos</span>
-              </div>
-              <p className="text-sm m-0">
-                Este cliente no tiene todos los datos fiscales. Se generará un REMITO.
-                El administrador deberá facturar posteriormente.
-              </p>
-            </div>
-          )}
+        {/* SECTION 6 - COMMENTS */}
+        <div className="mb-4">
+          <h3 className="text-xl font-bold mb-3 flex align-items-center gap-2">
+            <i className="pi pi-comment" style={{ color: '#E31E24' }}></i>
+            Observaciones
+          </h3>
+          <InputTextarea
+            value={comments}
+            onChange={(e) => setComments(e.target.value)}
+            rows={4}
+            placeholder="Observaciones sobre la entrega..."
+            className="w-full"
+          />
         </div>
-      </Dialog>
 
-      {/* Payment Modal */}
-      <PaymentModal
-        visible={showPaymentModal}
-        onHide={() => setShowPaymentModal(false)}
-        order={order}
-        onConfirm={handlePaymentConfirm}
-      />
-    </>
+        {/* ACTION BUTTONS */}
+        <div className="flex justify-content-end gap-2 mt-4">
+          <Button
+            label="Cancelar"
+            icon="pi pi-times"
+            className="p-button-text"
+            onClick={onHide}
+          />
+          <Button
+            label="Guardar Cambios"
+            icon="pi pi-check"
+            className="p-button-danger p-button-lg"
+            onClick={handleSaveChanges}
+            disabled={!deliveryStatus || (deliveryStatus === 'entregado' && !paymentMethod)}
+          />
+        </div>
+      </div>
+    </Dialog>
   );
 };
 

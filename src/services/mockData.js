@@ -1123,10 +1123,147 @@ export const mockOrders = [
     createdAt: '2025-11-08T10:00:00',
     deliveredAt: '2025-11-08T11:00:00',
     notes: ''
+  },
+  {
+    id: 16,
+    orderNumber: '0001-00000016',
+    clientId: 2,
+    clientName: 'Kiosco Central',
+    clientAddress: 'Defensa 567, San Telmo',
+    zone: ZONES.SAN_TELMO.id,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      {
+        productId: 1,
+        productName: 'Speed 250ml',
+        quantity: 6,
+        pricePerUnit: 1020,
+        priceList: PRICE_LISTS.LISTA_C,
+        subtotal: 6120
+      },
+      {
+        productId: 9,
+        productName: 'Fernet 750ml',
+        quantity: 2,
+        pricePerUnit: 4080,
+        priceList: PRICE_LISTS.LISTA_C,
+        subtotal: 8160
+      }
+    ],
+    subtotal: 14280,
+    discountPercent: 0,
+    discount: 0,
+    total: 14280,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: '2025-12-03T08:00:00',
+    deliveredAt: null,
+    notes: 'Entrega para hoy antes de las 12:00'
+  },
+  {
+    id: 17,
+    orderNumber: '0001-00000017',
+    clientId: 4,
+    clientName: 'Supermercado Don José',
+    clientAddress: 'Paseo Colón 1456, San Telmo',
+    zone: ZONES.SAN_TELMO.id,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      {
+        productId: 1,
+        productName: 'Speed 250ml',
+        quantity: 10,
+        pricePerUnit: 1080,
+        priceList: PRICE_LISTS.LISTA_B,
+        subtotal: 10800
+      },
+      {
+        productId: 4,
+        productName: 'Agua BLOCK 500ml',
+        quantity: 5,
+        pricePerUnit: 720,
+        priceList: PRICE_LISTS.LISTA_B,
+        subtotal: 3600
+      }
+    ],
+    subtotal: 14400,
+    discountPercent: 0,
+    discount: 0,
+    total: 14400,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: '2025-12-03T10:30:00',
+    deliveredAt: null,
+    notes: ''
+  },
+  {
+    id: 18,
+    orderNumber: '0001-00000018',
+    clientId: 17,
+    clientName: 'Bar El Viejo Almacén',
+    clientAddress: 'Independencia 299, San Telmo',
+    zone: ZONES.SAN_TELMO.id,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      {
+        productId: 1,
+        productName: 'Speed 250ml',
+        quantity: 15,
+        pricePerUnit: 1080,
+        priceList: PRICE_LISTS.LISTA_B,
+        subtotal: 16200
+      },
+      {
+        productId: 3,
+        productName: 'Speed Cola',
+        quantity: 8,
+        pricePerUnit: 1080,
+        priceList: PRICE_LISTS.LISTA_B,
+        subtotal: 8640
+      },
+      {
+        productId: 4,
+        productName: 'Agua BLOCK 500ml',
+        quantity: 12,
+        pricePerUnit: 720,
+        priceList: PRICE_LISTS.LISTA_B,
+        subtotal: 8640
+      }
+    ],
+    subtotal: 33480,
+    discountPercent: 0,
+    discount: 0,
+    total: 33480,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: '2025-12-03T14:15:00',
+    deliveredAt: null,
+    notes: ''
   }
 ];
 
-// Mock Cobranzas (Payments) - 20 payments
+// Mock Cobranzas/Cobros (Payments) - 20+ payments with utilidad
 export const mockCobranzas = [
   {
     id: 1,
@@ -1137,8 +1274,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 6000,
+    utilidad: 15,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 2,
@@ -1149,8 +1288,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 46170,
+    utilidad: 18,
     comprobante: 'transfer_004.jpg',
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 3,
@@ -1161,8 +1302,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 36000,
+    utilidad: 22,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Factura pendiente'
   },
   {
     id: 4,
@@ -1173,8 +1316,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 17280,
+    utilidad: 16,
     comprobante: 'transfer_007.jpg',
-    estado: 'pendiente'
+    estado: 'pendiente',
+    estadoFacturacion: 'Factura pendiente'
   },
   {
     id: 5,
@@ -1185,8 +1330,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 8640,
+    utilidad: 14,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 6,
@@ -1197,8 +1344,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 22400,
+    utilidad: 20,
     comprobante: 'transfer_010.jpg',
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 7,
@@ -1209,8 +1358,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 92000,
+    utilidad: 25,
     comprobante: 'transfer_012.jpg',
-    estado: 'pendiente'
+    estado: 'pendiente',
+    estadoFacturacion: 'Factura pendiente'
   },
   {
     id: 8,
@@ -1221,8 +1372,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 5400,
+    utilidad: 15,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 9,
@@ -1233,8 +1386,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 10000,
+    utilidad: 12,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 10,
@@ -1245,8 +1400,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 15000,
+    utilidad: 17,
     comprobante: 'transfer_101.jpg',
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 11,
@@ -1257,8 +1414,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 8500,
+    utilidad: 13,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Factura pendiente'
   },
   {
     id: 12,
@@ -1269,8 +1428,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 12000,
+    utilidad: 14,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 13,
@@ -1281,8 +1442,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 25000,
+    utilidad: 11,
     comprobante: 'transfer_113.jpg',
-    estado: 'pendiente'
+    estado: 'pendiente',
+    estadoFacturacion: 'Factura pendiente'
   },
   {
     id: 14,
@@ -1293,8 +1456,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 80000,
+    utilidad: 23,
     comprobante: 'transfer_114.jpg',
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 15,
@@ -1305,8 +1470,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 18000,
+    utilidad: 16,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 16,
@@ -1317,8 +1484,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 95000,
+    utilidad: 19,
     comprobante: 'transfer_116.jpg',
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 17,
@@ -1329,8 +1498,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 120000,
+    utilidad: 24,
     comprobante: 'transfer_117.jpg',
-    estado: 'pendiente'
+    estado: 'pendiente',
+    estadoFacturacion: 'Factura pendiente'
   },
   {
     id: 18,
@@ -1341,8 +1512,10 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 7500,
+    utilidad: 12,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 19,
@@ -1353,8 +1526,10 @@ export const mockCobranzas = [
     repartidorName: 'Pedro Gómez',
     metodo: PAYMENT_METHODS.EFT_TRANS,
     monto: 38000,
+    utilidad: 21,
     comprobante: 'transfer_119.jpg',
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   },
   {
     id: 20,
@@ -1365,8 +1540,52 @@ export const mockCobranzas = [
     repartidorName: 'Juan Pérez',
     metodo: PAYMENT_METHODS.EFECTIVO,
     monto: 5500,
+    utilidad: 13,
     comprobante: null,
-    estado: 'verificado'
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
+  },
+  {
+    id: 21,
+    fecha: '2025-12-03T10:00:00',
+    clienteId: 3,
+    clienteName: 'Club La Noche',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    metodo: PAYMENT_METHODS.CHEQUE,
+    monto: 45000,
+    utilidad: 20,
+    comprobante: 'cheque_scan_003.jpg',
+    estado: 'verificado',
+    estadoFacturacion: 'Factura pendiente'
+  },
+  {
+    id: 22,
+    fecha: '2025-12-02T14:30:00',
+    clienteId: 11,
+    clienteName: 'Kiosco Avenida',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    metodo: PAYMENT_METHODS.EFECTIVO,
+    monto: 8500,
+    utilidad: 11,
+    comprobante: null,
+    estado: 'verificado',
+    estadoFacturacion: 'Factura pendiente'
+  },
+  {
+    id: 23,
+    fecha: '2025-12-01T16:45:00',
+    clienteId: 15,
+    clienteName: 'Kiosco 24hs Constitución',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    metodo: PAYMENT_METHODS.EFECTIVO,
+    monto: 5200,
+    utilidad: 10,
+    comprobante: null,
+    estado: 'verificado',
+    estadoFacturacion: 'Facturado'
   }
 ];
 
@@ -1402,6 +1621,94 @@ export const mockFacturas = [
   { id: 28, numero: '0001-00000030', fecha: '2025-11-01', clienteId: 8, clienteName: 'Disco Quantum', tipo: 'B', monto: 132000, cae: 'CAE72345678901260', estado: 'emitida' },
   { id: 29, numero: '0001-00000031', fecha: '2025-10-31', clienteId: 12, clienteName: 'Restaurant Parrilla del Sur', tipo: 'B', monto: 28900, cae: 'CAE72345678901261', estado: 'anulada' },
   { id: 30, numero: '0001-00000032', fecha: '2025-10-31', clienteId: 1, clienteName: 'Bar El Refugio', tipo: 'B', monto: 19500, cae: null, estado: 'pendiente' }
+];
+
+// Mock Gastos (Expenses) - For repartidor and admin
+export const mockGastos = [
+  {
+    id: 1,
+    fecha: '2025-12-03T09:30:00',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    tipo: 'Nafta',
+    monto: 15000,
+    descripcion: 'Carga de nafta - Estación YPF Constitución',
+    comprobante: 'ticket_nafta_001.jpg',
+    estado: 'Pendiente',
+    observaciones: null
+  },
+  {
+    id: 2,
+    fecha: '2025-12-02T14:20:00',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    tipo: 'Peaje',
+    monto: 850,
+    descripcion: 'Peaje Autopista 25 de Mayo',
+    comprobante: 'ticket_peaje_002.jpg',
+    estado: 'Aprobado',
+    observaciones: 'Aprobado - viaje a zona norte'
+  },
+  {
+    id: 3,
+    fecha: '2025-12-01T13:45:00',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    tipo: 'Vianda',
+    monto: 3500,
+    descripcion: 'Almuerzo durante ruta',
+    comprobante: null,
+    estado: 'Aprobado',
+    observaciones: null
+  },
+  {
+    id: 4,
+    fecha: '2025-11-30T10:15:00',
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    tipo: 'Nafta',
+    monto: 22000,
+    descripcion: 'Carga de nafta - Estación Shell San Telmo',
+    comprobante: 'ticket_nafta_004.jpg',
+    estado: 'Aprobado',
+    observaciones: 'Aprobado'
+  },
+  {
+    id: 5,
+    fecha: '2025-11-29T16:30:00',
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    tipo: 'Viático',
+    monto: 5000,
+    descripcion: 'Gastos varios durante entregas',
+    comprobante: 'ticket_varios_005.jpg',
+    estado: 'Rechazado',
+    observaciones: 'Rechazado - falta justificación detallada'
+  },
+  {
+    id: 6,
+    fecha: '2025-11-28T12:00:00',
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    tipo: 'Otro',
+    monto: 2500,
+    descripcion: 'Lavado de vehículo',
+    comprobante: 'ticket_lavado_006.jpg',
+    estado: 'Aprobado',
+    observaciones: 'Aprobado - mantenimiento del vehículo'
+  },
+  {
+    id: 7,
+    fecha: '2025-11-27T11:20:00',
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    tipo: 'Peaje',
+    monto: 1200,
+    descripcion: 'Peaje Autopista La Plata',
+    comprobante: 'ticket_peaje_007.jpg',
+    estado: 'Aprobado',
+    observaciones: null
+  }
 ];
 
 // Sales Summary (for dashboard)
@@ -1493,6 +1800,7 @@ export default {
   mockOrders,
   mockCobranzas,
   mockFacturas,
+  mockGastos,
   mockSalesSummary,
   mockRecentTransactions,
   getClientsByZone,

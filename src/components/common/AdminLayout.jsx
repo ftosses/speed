@@ -20,7 +20,8 @@ const AdminLayout = () => {
     { label: 'Pedidos', icon: 'pi pi-shopping-cart', path: '/admin/pedidos' },
     { label: 'Repartidores', icon: 'pi pi-truck', path: '/admin/repartidores' },
     { label: 'Rutas del Día', icon: 'pi pi-map', path: '/admin/rutas' },
-    { label: 'Cobranzas', icon: 'pi pi-money-bill', path: '/admin/cobranzas' },
+    { label: 'Cobros', icon: 'pi pi-money-bill', path: '/admin/cobros' },
+    { label: 'Gastos', icon: 'pi pi-wallet', path: '/admin/gastos' },
     { label: 'Facturación', icon: 'pi pi-file', path: '/admin/facturacion' },
     { label: 'Reportes', icon: 'pi pi-chart-line', path: '/admin/reportes' },
     { label: 'Configuración', icon: 'pi pi-cog', path: '/admin/config' }

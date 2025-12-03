@@ -86,6 +86,16 @@ const Home = () => {
 
   return (
     <div className="p-3">
+      {/* Greeting Header */}
+      <div className="mb-4">
+        <h1 className="text-3xl font-bold" style={{ color: '#E31E24' }}>
+          Hola, {repartidor.name.split(' ')[0]} 👋
+        </h1>
+        <p className="text-gray-600 mt-1">
+          {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
+      </div>
+
       {/* Stats Bar */}
       <Card className="mb-3">
         <div className="grid">

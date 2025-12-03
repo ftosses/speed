@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
+import { Dialog } from 'primereact/dialog';
+import { confirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from 'primereact/confirmdialog';
 import { mockRepartidores } from '../../services/mockData';
-import { ZONES } from '../../utils/constants';
+import { ZONES, VEHICLE_TYPES } from '../../utils/constants';
 import { formatCurrency } from '../../utils/helpers';
 import { useZone } from '../../context/ZoneContext';
 
 const Repartidores = () => {
-  const navigate = useNavigate();
   const { selectedZone } = useZone();
   const [repartidores, setRepartidores] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [selectedZoneFilter, setSelectedZoneFilter] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [editingRepartidor, setEditingRepartidor] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    apellido: '',
+    zone: '',
+    vehicleType: '',
+    phone: '',
+    email: '',
+    horario: '',
+    active: true
+  });
 
   useEffect(() => {
     let filteredRepartidores = mockRepartidores;
@@ -32,20 +46,72 @@ const Repartidores = () => {
     setRepartidores(filteredRepartidores);
   }, [selectedZone, selectedZoneFilter]);
 
+  const vehicleOptions = [
+    { label: '🏍️ Moto', value: VEHICLE_TYPES.MOTO },
+    { label: '🚗 Auto', value: VEHICLE_TYPES.AUTO },
+    { label: '🚐 Camioneta', value: VEHICLE_TYPES.CAMIONETA }
+  ];
+
+  const estadoOptions = [
+    { label: 'Activo', value: true },
+    { label: 'Inactivo', value: false }
+  ];
+
   const handleRowClick = (e) => {
-    navigate(`/admin/repartidores/${e.data.id}`);
+    handleEdit(e.data);
   };
 
   const handleNewRepartidor = () => {
-    console.log('Nuevo repartidor');
+    setFormData({
+      name: '',
+      apellido: '',
+      zone: '',
+      vehicleType: '',
+      phone: '',
+      email: '',
+      horario: '8:00 - 18:00',
+      active: true
+    });
+    setEditingRepartidor(null);
+    setShowNewModal(true);
   };
 
-  const handleView = (repartidorId) => {
-    navigate(`/admin/repartidores/${repartidorId}`);
+  const handleEdit = (repartidor) => {
+    setEditingRepartidor(repartidor);
+    setFormData({
+      name: repartidor.name.split(' ')[0] || '',
+      apellido: repartidor.name.split(' ').slice(1).join(' ') || '',
+      zone: repartidor.zone,
+      vehicleType: repartidor.vehicleType,
+      phone: repartidor.phone,
+      email: repartidor.email || '',
+      horario: '8:00 - 18:00',
+      active: repartidor.active !== false
+    });
+    setShowEditModal(true);
   };
 
-  const handleEdit = (repartidorId) => {
-    console.log('Editar repartidor:', repartidorId);
+  const handleSave = () => {
+    console.log('Guardando repartidor:', formData);
+    // Aquí iría la lógica para guardar en el backend
+    alert('Repartidor guardado exitosamente');
+    setShowEditModal(false);
+    setShowNewModal(false);
+  };
+
+  const handleDelete = (repartidor) => {
+    confirmDialog({
+      message: `¿Está seguro que desea eliminar al repartidor ${repartidor.name}?`,
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptClassName: 'p-button-danger',
+      accept: () => {
+        console.log('Eliminando repartidor:', repartidor.id);
+        alert(`Repartidor ${repartidor.name} eliminado`);
+      }
+    });
   };
 
   // Column templates
@@ -118,23 +184,23 @@ const Repartidores = () => {
     return (
       <div className="flex gap-2">
         <Button
-          icon="pi pi-eye"
-          className="action-button"
-          tooltip="Ver"
-          tooltipOptions={{ position: 'top' }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleView(rowData.id);
-          }}
-        />
-        <Button
           icon="pi pi-pencil"
           className="action-button"
           tooltip="Editar"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
             e.stopPropagation();
-            handleEdit(rowData.id);
+            handleEdit(rowData);
+          }}
+        />
+        <Button
+          icon="pi pi-trash"
+          className="action-button"
+          tooltip="Eliminar"
+          tooltipOptions={{ position: 'top' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(rowData);
           }}
         />
       </div>
@@ -173,8 +239,137 @@ const Repartidores = () => {
     </div>
   );
 
+  const renderEditModal = (isNew = false) => (
+    <Dialog
+      visible={isNew ? showNewModal : showEditModal}
+      onHide={() => isNew ? setShowNewModal(false) : setShowEditModal(false)}
+      header={isNew ? "Nuevo Repartidor" : "Editar Repartidor"}
+      style={{ width: '700px' }}
+      breakpoints={{ '960px': '75vw', '640px': '95vw' }}
+    >
+      <div className="p-fluid">
+        <div className="grid">
+          <div className="col-6 mb-3">
+            <label htmlFor="name" className="font-bold mb-2 block">
+              Nombre *
+            </label>
+            <InputText
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Ej: Juan"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="apellido" className="font-bold mb-2 block">
+              Apellido *
+            </label>
+            <InputText
+              id="apellido"
+              value={formData.apellido}
+              onChange={(e) => setFormData({ ...formData, apellido: e.target.value })}
+              placeholder="Ej: Pérez"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="zone" className="font-bold mb-2 block">
+              Zona *
+            </label>
+            <Dropdown
+              id="zone"
+              value={formData.zone}
+              options={Object.values(ZONES).map(z => ({ label: z.name, value: z.id }))}
+              onChange={(e) => setFormData({ ...formData, zone: e.value })}
+              placeholder="Seleccionar zona"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="vehicleType" className="font-bold mb-2 block">
+              Vehículo *
+            </label>
+            <Dropdown
+              id="vehicleType"
+              value={formData.vehicleType}
+              options={vehicleOptions}
+              onChange={(e) => setFormData({ ...formData, vehicleType: e.value })}
+              placeholder="Seleccionar vehículo"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="phone" className="font-bold mb-2 block">
+              Teléfono *
+            </label>
+            <InputText
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              placeholder="Ej: 11-5555-1234"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="email" className="font-bold mb-2 block">
+              Email
+            </label>
+            <InputText
+              id="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="Ej: juan@speedunlimited.com"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="horario" className="font-bold mb-2 block">
+              Horario
+            </label>
+            <InputText
+              id="horario"
+              value={formData.horario}
+              onChange={(e) => setFormData({ ...formData, horario: e.target.value })}
+              placeholder="Ej: 8:00 - 18:00"
+            />
+          </div>
+
+          <div className="col-6 mb-3">
+            <label htmlFor="active" className="font-bold mb-2 block">
+              Estado *
+            </label>
+            <Dropdown
+              id="active"
+              value={formData.active}
+              options={estadoOptions}
+              onChange={(e) => setFormData({ ...formData, active: e.value })}
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-content-end gap-2 mt-4">
+          <Button
+            label="Cancelar"
+            icon="pi pi-times"
+            className="p-button-text"
+            onClick={() => isNew ? setShowNewModal(false) : setShowEditModal(false)}
+          />
+          <Button
+            label="Guardar"
+            icon="pi pi-check"
+            onClick={handleSave}
+            disabled={!formData.name || !formData.zone || !formData.vehicleType || !formData.phone}
+          />
+        </div>
+      </div>
+    </Dialog>
+  );
+
   return (
     <div className="p-4">
+      <ConfirmDialog />
+
       <div className="mb-4">
         <h1 className="text-3xl font-bold mb-2">👤 Repartidores</h1>
         <p className="text-gray-600">
@@ -242,6 +437,9 @@ const Repartidores = () => {
           style={{ minWidth: '120px' }}
         />
       </DataTable>
+
+      {renderEditModal(false)}
+      {renderEditModal(true)}
     </div>
   );
 };

@@ -215,6 +215,7 @@ export const PAYMENT_METHODS = {
   EFECTIVO: 'efectivo',
   EFT_TRANS: 'eft_trans', // Changed from "transferencia" to "EFT/TRANS"
   TARJETA: 'tarjeta',
+  CHEQUE: 'cheque',
   CUENTA_CORRIENTE: 'cuenta_corriente'
 };
 
@@ -222,6 +223,7 @@ export const PAYMENT_METHOD_LABELS = {
   [PAYMENT_METHODS.EFECTIVO]: 'Efectivo',
   [PAYMENT_METHODS.EFT_TRANS]: 'EFT/TRANS',
   [PAYMENT_METHODS.TARJETA]: 'Tarjeta',
+  [PAYMENT_METHODS.CHEQUE]: 'Cheque',
   [PAYMENT_METHODS.CUENTA_CORRIENTE]: 'Cuenta Corriente'
 };
 

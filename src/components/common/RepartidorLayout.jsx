@@ -11,6 +11,7 @@ const RepartidorLayout = () => {
     { label: 'Inicio', icon: 'pi pi-home', path: '/repartidor/home' },
     { label: 'Clientes', icon: 'pi pi-users', path: '/repartidor/clientes' },
     { label: 'Stock', icon: 'pi pi-box', path: '/repartidor/stock' },
+    { label: 'Gastos', icon: 'pi pi-wallet', path: '/repartidor/gastos' },
     { label: 'Perfil', icon: 'pi pi-user', path: '/repartidor/perfil' }
   ];
 

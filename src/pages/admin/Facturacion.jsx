@@ -1,29 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
-import { mockFacturas } from '../../services/mockData';
+import { Dialog } from 'primereact/dialog';
+import { mockFacturas, mockClients } from '../../services/mockData';
 import { INVOICE_TYPES } from '../../utils/constants';
 import { formatCurrency } from '../../utils/helpers';
 import { useZone } from '../../context/ZoneContext';
 
 const Facturacion = () => {
-  const navigate = useNavigate();
   const { selectedZone } = useZone();
   const [facturas, setFacturas] = useState([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [selectedTipo, setSelectedTipo] = useState(null);
   const [selectedEstado, setSelectedEstado] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedFactura, setSelectedFactura] = useState(null);
 
   useEffect(() => {
-    let filteredFacturas = mockFacturas;
+    // Only show facturas that have been already facturadas (emitida status)
+    let filteredFacturas = mockFacturas.filter(f => f.estado === 'emitida');
 
+    // Filter by zone - look up zone through client relationship
     if (selectedZone) {
-      filteredFacturas = filteredFacturas.filter(f => f.zone === selectedZone.id);
+      // Get all client IDs in the selected zone
+      const clientIdsInZone = mockClients
+        .filter(c => c.zone === selectedZone.id)
+        .map(c => c.id);
+      
+      // Filter facturas by client zone
+      filteredFacturas = filteredFacturas.filter(f => 
+        clientIdsInZone.includes(f.clienteId)
+      );
     }
 
     if (selectedTipo) {
@@ -38,23 +49,15 @@ const Facturacion = () => {
   }, [selectedZone, selectedTipo, selectedEstado]);
 
   const handleRowClick = (e) => {
-    navigate(`/admin/facturacion/${e.data.id}`);
+    setSelectedFactura(e.data);
+    setShowDetailModal(true);
   };
 
-  const handleNewFactura = () => {
-    console.log('Nueva factura manual');
-  };
-
-  const handleView = (facturaId) => {
-    navigate(`/admin/facturacion/${facturaId}`);
-  };
-
-  const handleDownload = (facturaId) => {
-    console.log('Descargar PDF:', facturaId);
-  };
-
-  const handleAnular = (facturaId) => {
-    console.log('Anular factura:', facturaId);
+  const handleDownloadPDF = (factura) => {
+    console.log('Descargando PDF de factura:', factura.numero);
+    // Simulate PDF download
+    alert(`Descargando factura ${factura.numero}...`);
+    window.open(`/mock-factura-${factura.id}.pdf`, '_blank');
   };
 
   // Column templates
@@ -153,33 +156,19 @@ const Facturacion = () => {
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
             e.stopPropagation();
-            handleView(rowData.id);
+            handleRowClick({ data: rowData });
           }}
         />
-        {rowData.estado === 'emitida' && (
-          <>
-            <Button
-              icon="pi pi-download"
-              className="action-button"
-              tooltip="Descargar PDF"
-              tooltipOptions={{ position: 'top' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDownload(rowData.id);
-              }}
-            />
-            <Button
-              icon="pi pi-times"
-              className="action-button"
-              tooltip="Anular"
-              tooltipOptions={{ position: 'top' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAnular(rowData.id);
-              }}
-            />
-          </>
-        )}
+        <Button
+          icon="pi pi-download"
+          className="action-button"
+          tooltip="Descargar PDF"
+          tooltipOptions={{ position: 'top' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownloadPDF(rowData);
+          }}
+        />
       </div>
     );
   };
@@ -223,12 +212,6 @@ const Facturacion = () => {
           showClear={!!selectedEstado}
         />
       </div>
-      <Button
-        label="Nueva Factura Manual"
-        icon="pi pi-plus"
-        onClick={handleNewFactura}
-        className="p-button-danger"
-      />
     </div>
   );
 
@@ -237,7 +220,7 @@ const Facturacion = () => {
       <div className="mb-4">
         <h1 className="text-3xl font-bold mb-2">📄 Facturación</h1>
         <p className="text-gray-600">
-          Emisión y gestión de facturas electrónicas AFIP
+          Facturas ya emitidas desde el módulo de Cobros
         </p>
       </div>
 
@@ -310,6 +293,90 @@ const Facturacion = () => {
           style={{ minWidth: '180px' }}
         />
       </DataTable>
+
+      {/* Factura Detail Modal */}
+      <Dialog
+        visible={showDetailModal}
+        onHide={() => setShowDetailModal(false)}
+        header="Detalle de la Factura"
+        style={{ width: '700px' }}
+        breakpoints={{ '960px': '75vw', '640px': '95vw' }}
+      >
+        {selectedFactura && (
+          <div>
+            <div className="mb-4">
+              <h3 className="mb-3">Información de la Factura</h3>
+
+              <div className="grid">
+                <div className="col-6 mb-3">
+                  <strong>N° Factura:</strong>
+                  <div className="mt-1 text-xl font-mono font-bold">{selectedFactura.numero}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Fecha Emisión:</strong>
+                  <div className="mt-1">{new Date(selectedFactura.fecha).toLocaleDateString('es-AR')}</div>
+                </div>
+
+                <div className="col-12 mb-3">
+                  <strong>Cliente:</strong>
+                  <div className="mt-1 text-lg">{selectedFactura.clienteName}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Tipo:</strong>
+                  <div className="mt-1">{tipoBodyTemplate(selectedFactura)}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Monto:</strong>
+                  <div className="mt-1 text-2xl font-bold" style={{ color: '#E31E24' }}>
+                    {formatCurrency(selectedFactura.monto)}
+                  </div>
+                </div>
+
+                {selectedFactura.cae && (
+                  <>
+                    <div className="col-12 mb-3">
+                      <strong>CAE:</strong>
+                      <div className="mt-1 font-mono">{selectedFactura.cae}</div>
+                    </div>
+
+                    {selectedFactura.vencimientoCae && (
+                      <div className="col-12 mb-3">
+                        <strong>Vencimiento CAE:</strong>
+                        <div className="mt-1">
+                          {new Date(selectedFactura.vencimientoCae).toLocaleDateString('es-AR')}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="col-12 mb-3">
+                  <strong>Estado:</strong>
+                  <div className="mt-1">{estadoBodyTemplate(selectedFactura)}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-content-between gap-2 mt-4">
+              <Button
+                label="Descargar PDF"
+                icon="pi pi-download"
+                className="p-button-success"
+                onClick={() => handleDownloadPDF(selectedFactura)}
+              />
+              <Button
+                label="Cerrar"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setShowDetailModal(false)}
+              />
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 };

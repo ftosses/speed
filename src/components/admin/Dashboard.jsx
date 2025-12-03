@@ -1,9 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
+import { Dialog } from 'primereact/dialog';
+import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
 import { useZone } from '../../context/ZoneContext';
 import { mockSalesSummary, mockRecentTransactions, mockOrders } from '../../services/mockData';
 import { formatCurrency } from '../../utils/helpers';
@@ -12,6 +15,9 @@ import { isToday, isTomorrow, isThisWeek } from '../../utils/dateHelpers';
 const Dashboard = () => {
   const navigate = useNavigate();
   const { selectedZone } = useZone();
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showTransactionModal, setShowTransactionModal] = useState(false);
+  const [transactionEstado, setTransactionEstado] = useState('');
 
   // Filter orders by date and zone
   const allOrders = useMemo(() => {
@@ -78,6 +84,26 @@ const Dashboard = () => {
     }
   ];
 
+  const estadoOptions = [
+    { label: 'Verificado', value: 'verificado' },
+    { label: 'Pendiente', value: 'pendiente' },
+    { label: 'Completado', value: 'completado' },
+    { label: 'Entregado', value: 'entregado' }
+  ];
+
+  const handleRowClick = (e) => {
+    setSelectedTransaction(e.data);
+    setTransactionEstado(e.data.estado);
+    setShowTransactionModal(true);
+  };
+
+  const handleSaveChanges = () => {
+    console.log('Guardando cambios:', { transaction: selectedTransaction, newEstado: transactionEstado });
+    // Aquí iría la lógica para guardar en el backend
+    setShowTransactionModal(false);
+    setSelectedTransaction(null);
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -88,28 +114,33 @@ const Dashboard = () => {
         </p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats Grid - Larger and more visual */}
       <div className="grid">
         {stats.map((stat, index) => (
           <div key={index} className="col-12 md:col-6 lg:col-3">
-            <div className="stat-card">
-              <div className="flex align-items-center justify-content-between">
-                <div>
-                  <div className="stat-card-title">{stat.title}</div>
-                  <div className="stat-card-value">{stat.value}</div>
-                  <div className="text-sm" style={{ color: stat.color }}>
-                    <i className="pi pi-arrow-up mr-1"></i>
-                    {stat.change}
-                  </div>
-                </div>
-                <div>
+            <Card className="stat-card" style={{ border: `2px solid ${stat.color}20`, height: '100%' }}>
+              <div className="flex align-items-center justify-content-between mb-3">
+                <div style={{
+                  backgroundColor: `${stat.color}15`,
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
                   <i
-                    className={`${stat.icon} stat-card-icon`}
-                    style={{ color: stat.color }}
+                    className={stat.icon}
+                    style={{ color: stat.color, fontSize: '2.5rem' }}
                   ></i>
                 </div>
               </div>
-            </div>
+              <div className="stat-card-title mb-2">{stat.title}</div>
+              <div className="stat-card-value mb-2" style={{ fontSize: '2.5rem' }}>{stat.value}</div>
+              <div className="flex align-items-center" style={{ color: stat.color, fontWeight: '600' }}>
+                <i className="pi pi-arrow-up mr-2" style={{ fontSize: '0.875rem' }}></i>
+                <span>{stat.change} vs ayer</span>
+              </div>
+            </Card>
           </div>
         ))}
       </div>
@@ -161,6 +192,8 @@ const Dashboard = () => {
               dataKey="id"
               stripedRows
               className="datatable-responsive"
+              onRowClick={handleRowClick}
+              rowClassName="clickable-row"
             >
               <Column
                 field="fecha"
@@ -232,6 +265,94 @@ const Dashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Transaction Detail Modal */}
+      <Dialog
+        visible={showTransactionModal}
+        onHide={() => setShowTransactionModal(false)}
+        header="Detalle de Transacción"
+        style={{ width: '600px' }}
+        breakpoints={{ '960px': '75vw', '640px': '95vw' }}
+      >
+        {selectedTransaction && (
+          <div className="p-fluid">
+            <div className="mb-4">
+              <h3 className="mb-3">Información Completa</h3>
+
+              <div className="grid">
+                <div className="col-6 mb-3">
+                  <strong>Tipo:</strong>
+                  <div className="mt-1">
+                    <Tag
+                      value={selectedTransaction.tipo}
+                      severity={
+                        selectedTransaction.tipo === 'Cobro' ? 'success' :
+                        selectedTransaction.tipo === 'Venta' ? 'info' :
+                        selectedTransaction.tipo === 'Factura' ? 'warning' :
+                        'secondary'
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Fecha/Hora:</strong>
+                  <div className="mt-1">{selectedTransaction.fecha}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Cliente:</strong>
+                  <div className="mt-1">{selectedTransaction.cliente}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Repartidor:</strong>
+                  <div className="mt-1">{selectedTransaction.repartidor}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Monto:</strong>
+                  <div className="mt-1 font-bold text-xl">{formatCurrency(selectedTransaction.monto)}</div>
+                </div>
+
+                <div className="col-6 mb-3">
+                  <strong>Método:</strong>
+                  <div className="mt-1">{selectedTransaction.metodo || 'N/A'}</div>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label htmlFor="estado" className="font-bold mb-2 block">
+                  Estado
+                </label>
+                <Dropdown
+                  id="estado"
+                  value={transactionEstado}
+                  options={estadoOptions}
+                  onChange={(e) => setTransactionEstado(e.value)}
+                  placeholder="Seleccionar estado"
+                  className="w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-content-end gap-2 mt-4">
+              <Button
+                label="Cancelar"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setShowTransactionModal(false)}
+              />
+              <Button
+                label="Guardar Cambios"
+                icon="pi pi-check"
+                onClick={handleSaveChanges}
+                autoFocus
+              />
+            </div>
+          </div>
+        )}
+      </Dialog>
     </div>
   );
 };
