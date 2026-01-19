@@ -8,7 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { Dropdown } from 'primereact/dropdown';
 import { Button } from 'primereact/button';
 import { useZone } from '../../context/ZoneContext';
-import { mockSalesSummary, mockRecentTransactions, mockOrders } from '../../services/mockData';
+import { mockSalesSummary, mockRecentTransactions, mockOrders, mockClients } from '../../services/mockData';
 import { formatCurrency } from '../../utils/helpers';
 import { isToday, isTomorrow, isThisWeek } from '../../utils/dateHelpers';
 
@@ -18,6 +18,7 @@ const Dashboard = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [transactionEstado, setTransactionEstado] = useState('');
+  const [timeFilter, setTimeFilter] = useState('HOY');
 
   // Filter orders by date and zone
   const allOrders = useMemo(() => {
@@ -53,34 +54,61 @@ const Dashboard = () => {
     return filtered;
   }, [allOrders, selectedZone]);
 
+  // Calculate debtors today
+  const deudoresHoy = useMemo(() => {
+    let deudores = mockClients.filter(client => client.deudaTotal > 0);
+    if (selectedZone) {
+      deudores = deudores.filter(client => client.zone === selectedZone.id);
+    }
+    return deudores;
+  }, [selectedZone]);
+
+  // Get data based on time filter
+  const getFilteredData = () => {
+    switch (timeFilter) {
+      case 'HOY':
+        return mockSalesSummary.today;
+      case '7 DÍAS':
+        return mockSalesSummary.thisWeek || mockSalesSummary.today;
+      case 'MES':
+        return mockSalesSummary.thisMonth;
+      case 'TOTAL':
+        return {
+          sales: mockSalesSummary.thisMonth.sales * 3, // Mock total
+          collections: mockSalesSummary.thisMonth.collections * 3,
+          orders: mockSalesSummary.thisMonth.orders * 3
+        };
+      default:
+        return mockSalesSummary.today;
+    }
+  };
+
+  const filteredData = getFilteredData();
+
   const stats = [
     {
-      title: 'Ventas del Día',
-      value: formatCurrency(mockSalesSummary.today.sales),
+      title: `Ventas ${timeFilter === 'HOY' ? 'del Día' : timeFilter === '7 DÍAS' ? 'de la Semana' : timeFilter === 'MES' ? 'del Mes' : 'Totales'}`,
+      value: formatCurrency(filteredData.sales),
       icon: 'pi pi-dollar',
-      color: '#E31E24',
-      change: '+12%'
+      navigateTo: '/admin/reportes?tab=ventas'
     },
     {
-      title: 'Cobranzas del Día',
-      value: formatCurrency(mockSalesSummary.today.collections),
+      title: `Cobranzas ${timeFilter === 'HOY' ? 'del Día' : timeFilter === '7 DÍAS' ? 'de la Semana' : timeFilter === 'MES' ? 'del Mes' : 'Totales'}`,
+      value: formatCurrency(filteredData.collections),
       icon: 'pi pi-money-bill',
-      color: '#10B981',
-      change: '+8%'
+      navigateTo: '/admin/cobros'
     },
     {
-      title: 'Pedidos Hoy',
-      value: mockSalesSummary.today.orders,
+      title: `Pedidos ${timeFilter === 'HOY' ? 'Hoy' : timeFilter === '7 DÍAS' ? 'de la Semana' : timeFilter === 'MES' ? 'del Mes' : 'Totales'}`,
+      value: filteredData.orders,
       icon: 'pi pi-shopping-cart',
-      color: '#3B82F6',
-      change: '+5'
+      navigateTo: '/admin/pedidos'
     },
     {
-      title: 'Promedio por Pedido',
-      value: formatCurrency(mockSalesSummary.today.avgOrderValue),
-      icon: 'pi pi-chart-line',
-      color: '#F59E0B',
-      change: '+3%'
+      title: 'Deudores al Día',
+      value: deudoresHoy.length,
+      icon: 'pi pi-exclamation-circle',
+      navigateTo: '/admin/deudores'
     }
   ];
 
@@ -107,38 +135,61 @@ const Dashboard = () => {
   return (
     <div>
       <div className="page-header">
-        <h1>Dashboard</h1>
+        <div className="flex justify-content-between align-items-center mb-3">
+          <h1 className="m-0">Dashboard</h1>
+          <div className="flex gap-2">
+            {['HOY', '7 DÍAS', 'MES', 'TOTAL'].map((filter) => (
+              <Button
+                key={filter}
+                label={filter}
+                className={timeFilter === filter ? 'p-button-danger' : 'p-button-outlined'}
+                style={{
+                  fontSize: '0.875rem',
+                  padding: '0.5rem 1rem'
+                }}
+                onClick={() => setTimeFilter(filter)}
+              />
+            ))}
+          </div>
+        </div>
         <p>
           {selectedZone ? `Zona: ${selectedZone.name}` : 'Todas las zonas'} |
           Fecha: {new Date().toLocaleDateString('es-AR')}
         </p>
       </div>
 
-      {/* Stats Grid - Larger and more visual */}
+      {/* Stats Grid - Compact with monochromatic gray icons */}
       <div className="grid">
         {stats.map((stat, index) => (
           <div key={index} className="col-12 md:col-6 lg:col-3">
-            <Card className="stat-card" style={{ border: `2px solid ${stat.color}20`, height: '100%' }}>
-              <div className="flex align-items-center justify-content-between mb-3">
+            <Card
+              className="stat-card"
+              style={{
+                border: '1px solid #E5E7EB',
+                height: '100%',
+                cursor: 'pointer',
+                padding: '0.75rem'
+              }}
+              onClick={() => navigate(stat.navigateTo)}
+            >
+              <div className="flex align-items-center gap-3">
                 <div style={{
-                  backgroundColor: `${stat.color}15`,
-                  borderRadius: '12px',
-                  padding: '16px',
+                  backgroundColor: '#F3F4F6',
+                  borderRadius: '8px',
+                  padding: '10px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
                   <i
                     className={stat.icon}
-                    style={{ color: stat.color, fontSize: '2.5rem' }}
+                    style={{ color: '#6B7280', fontSize: '1.5rem' }}
                   ></i>
                 </div>
-              </div>
-              <div className="stat-card-title mb-2">{stat.title}</div>
-              <div className="stat-card-value mb-2" style={{ fontSize: '2.5rem' }}>{stat.value}</div>
-              <div className="flex align-items-center" style={{ color: stat.color, fontWeight: '600' }}>
-                <i className="pi pi-arrow-up mr-2" style={{ fontSize: '0.875rem' }}></i>
-                <span>{stat.change} vs ayer</span>
+                <div className="flex-1">
+                  <div className="stat-card-title mb-1" style={{ fontSize: '0.75rem', color: '#9CA3AF' }}>{stat.title}</div>
+                  <div className="stat-card-value" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827' }}>{stat.value}</div>
+                </div>
               </div>
             </Card>
           </div>
@@ -146,45 +197,48 @@ const Dashboard = () => {
       </div>
 
       {/* Rutas del Día Section */}
-      <div className="grid grid-cols-3 gap-4 mb-6 mt-4">
-        <div className="col-12">
-          <h3 className="text-xl font-bold mb-3">🚚 Rutas del Día</h3>
-        </div>
-        <div className="col-12 md:col-4">
-          <Card 
-            onClick={() => navigate('/admin/rutas?filter=hoy')} 
-            className="cursor-pointer hover:shadow-lg transition-duration-200"
-          >
-            <h4 className="text-lg font-bold mb-2">HOY</h4>
-            <p className="text-3xl font-bold text-primary mb-1">{pedidosHoy.length}</p>
-            <p className="text-sm text-gray-500">entregas programadas</p>
-          </Card>
-        </div>
-        <div className="col-12 md:col-4">
-          <Card 
-            onClick={() => navigate('/admin/rutas?filter=mañana')} 
-            className="cursor-pointer hover:shadow-lg transition-duration-200"
-          >
-            <h4 className="text-lg font-bold mb-2">MAÑANA</h4>
-            <p className="text-3xl font-bold text-primary mb-1">{pedidosManana.length}</p>
-            <p className="text-sm text-gray-500">entregas programadas</p>
-          </Card>
-        </div>
-        <div className="col-12 md:col-4">
-          <Card 
-            onClick={() => navigate('/admin/rutas?filter=semana')} 
-            className="cursor-pointer hover:shadow-lg transition-duration-200"
-          >
-            <h4 className="text-lg font-bold mb-2">LA SEMANA</h4>
-            <p className="text-3xl font-bold text-primary mb-1">{pedidosSemana.length}</p>
-            <p className="text-sm text-gray-500">entregas programadas</p>
-          </Card>
+      <div className="mt-4 mb-4">
+        <h3 className="text-xl font-bold mb-3">🚚 Rutas del Día</h3>
+        <div className="grid">
+          <div className="col-12 md:col-4">
+            <Card
+              onClick={() => navigate('/admin/rutas?filter=hoy')}
+              className="cursor-pointer hover:shadow-lg transition-duration-200"
+              style={{ padding: '1rem' }}
+            >
+              <h4 className="text-lg font-bold mb-2">HOY</h4>
+              <p className="text-3xl font-bold text-primary mb-1">{pedidosHoy.length}</p>
+              <p className="text-sm text-gray-500">entregas programadas</p>
+            </Card>
+          </div>
+          <div className="col-12 md:col-4">
+            <Card
+              onClick={() => navigate('/admin/rutas?filter=mañana')}
+              className="cursor-pointer hover:shadow-lg transition-duration-200"
+              style={{ padding: '1rem' }}
+            >
+              <h4 className="text-lg font-bold mb-2">MAÑANA</h4>
+              <p className="text-3xl font-bold text-primary mb-1">{pedidosManana.length}</p>
+              <p className="text-sm text-gray-500">entregas programadas</p>
+            </Card>
+          </div>
+          <div className="col-12 md:col-4">
+            <Card
+              onClick={() => navigate('/admin/rutas?filter=semana')}
+              className="cursor-pointer hover:shadow-lg transition-duration-200"
+              style={{ padding: '1rem' }}
+            >
+              <h4 className="text-lg font-bold mb-2">LA SEMANA</h4>
+              <p className="text-3xl font-bold text-primary mb-1">{pedidosSemana.length}</p>
+              <p className="text-sm text-gray-500">entregas programadas</p>
+            </Card>
+          </div>
         </div>
       </div>
 
       {/* Recent Activity */}
       <div className="grid mt-4">
-        <div className="col-12 lg:col-8">
+        <div className="col-12">
           <Card title="📊 Últimas Transacciones" className="h-full">
             <DataTable
               value={mockRecentTransactions}
@@ -198,6 +252,7 @@ const Dashboard = () => {
               <Column
                 field="fecha"
                 header="Fecha/Hora"
+                sortable
                 style={{ minWidth: '140px' }}
               />
               <Column
@@ -206,12 +261,11 @@ const Dashboard = () => {
                 body={(rowData) => (
                   <Tag
                     value={rowData.tipo}
-                    severity={
-                      rowData.tipo === 'Cobro' ? 'success' :
-                      rowData.tipo === 'Venta' ? 'info' :
-                      rowData.tipo === 'Factura' ? 'warning' :
-                      'secondary'
-                    }
+                    style={{
+                      backgroundColor: '#F3F4F6',
+                      color: '#374151',
+                      border: 'none'
+                    }}
                   />
                 )}
                 style={{ minWidth: '100px' }}
@@ -232,36 +286,33 @@ const Dashboard = () => {
               <Column
                 field="estado"
                 header="Estado"
-                body={(rowData) => (
-                  <Tag
-                    value={rowData.estado}
-                    severity={
-                      rowData.estado === 'completado' ? 'success' :
-                      rowData.estado === 'pendiente' ? 'warning' :
-                      'secondary'
-                    }
-                  />
-                )}
+                body={(rowData) => {
+                  let tagStyle = {
+                    backgroundColor: '#F3F4F6',
+                    color: '#374151',
+                    border: 'none'
+                  };
+
+                  // Apply color based on status
+                  if (rowData.estado?.toLowerCase() === 'pendiente') {
+                    tagStyle = {
+                      backgroundColor: '#FEE2E2',
+                      color: '#DC2626',
+                      border: 'none'
+                    };
+                  } else if (rowData.estado?.toLowerCase() === 'entregado') {
+                    tagStyle = {
+                      backgroundColor: '#D1FAE5',
+                      color: '#059669',
+                      border: 'none'
+                    };
+                  }
+
+                  return <Tag value={rowData.estado} style={tagStyle} />;
+                }}
                 style={{ minWidth: '120px' }}
               />
             </DataTable>
-          </Card>
-        </div>
-
-        <div className="col-12 lg:col-4">
-          <Card title="Resumen del Mes" className="h-full">
-            <div className="mb-3">
-              <strong>Ventas:</strong> {formatCurrency(mockSalesSummary.thisMonth.sales)}
-            </div>
-            <div className="mb-3">
-              <strong>Cobranzas:</strong> {formatCurrency(mockSalesSummary.thisMonth.collections)}
-            </div>
-            <div className="mb-3">
-              <strong>Pedidos:</strong> {mockSalesSummary.thisMonth.orders}
-            </div>
-            <div>
-              <strong>Promedio:</strong> {formatCurrency(mockSalesSummary.thisMonth.avgOrderValue)}
-            </div>
           </Card>
         </div>
       </div>

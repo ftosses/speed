@@ -198,14 +198,30 @@ const Rutas = () => {
                             <div className="flex flex-column gap-2 ml-3">
                               <Button
                                 icon="pi pi-eye"
-                                className="action-button"
+                                className="p-button-text"
+                                style={{
+                                  backgroundColor: '#F7F7F7',
+                                  border: '1px solid #F9F9F9',
+                                  color: '#E31E24',
+                                  borderRadius: '8px',
+                                  minHeight: '40px',
+                                  minWidth: '40px'
+                                }}
                                 tooltip="Ver detalle"
                                 tooltipOptions={{ position: 'left' }}
                                 onClick={() => handleViewOrder(order.id)}
                               />
                               <Button
                                 icon="pi pi-map"
-                                className="action-button"
+                                className="p-button-text"
+                                style={{
+                                  backgroundColor: '#F7F7F7',
+                                  border: '1px solid #F9F9F9',
+                                  color: '#E31E24',
+                                  borderRadius: '8px',
+                                  minHeight: '40px',
+                                  minWidth: '40px'
+                                }}
                                 tooltip="Navegar"
                                 tooltipOptions={{ position: 'left' }}
                                 onClick={() => handleNavigate(order.clientAddress)}

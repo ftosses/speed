@@ -20,6 +20,7 @@ import Pedidos from './pages/admin/Pedidos';
 import Repartidores from './pages/admin/Repartidores';
 import Rutas from './pages/admin/Rutas';
 import Cobros from './pages/admin/Cobros';
+import Deudores from './pages/admin/Deudores';
 import Gastos from './pages/admin/Gastos';
 import Facturacion from './pages/admin/Facturacion';
 import Reportes from './pages/admin/Reportes';
@@ -86,6 +87,7 @@ function App() {
               <Route path="repartidores" element={<Repartidores />} />
               <Route path="rutas" element={<Rutas />} />
               <Route path="cobros" element={<Cobros />} />
+              <Route path="deudores" element={<Deudores />} />
               <Route path="gastos" element={<Gastos />} />
               <Route path="facturacion" element={<Facturacion />} />
               <Route path="reportes" element={<Reportes />} />

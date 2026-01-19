@@ -1,10 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Card } from 'primereact/card';
 import { TabView, TabPanel } from 'primereact/tabview';
-import { mockOrders, mockRepartidores, mockClients } from '../../services/mockData';
+import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
+import { Dialog } from 'primereact/dialog';
+import { mockOrders, mockRepartidores, mockClients, mockPagos } from '../../services/mockData';
 import { formatCurrency } from '../../utils/helpers';
 import { useAuth } from '../../context/AuthContext';
-import { isToday, isTomorrow, isThisWeek } from '../../utils/dateHelpers';
+import { isToday, isTomorrow } from '../../utils/dateHelpers';
 import OrderDetailModal from './OrderDetailModal';
 
 const Home = () => {
@@ -12,6 +15,8 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Get current repartidor data (mock)
   const repartidor = mockRepartidores.find(r => r.id === user.id) || mockRepartidores[0];
@@ -35,22 +40,22 @@ const Home = () => {
     [myOrders]
   );
 
-  const ordersThisWeek = useMemo(() =>
-    myOrders.filter(order => isThisWeek(order.date) && !isToday(order.date) && !isTomorrow(order.date)),
-    [myOrders]
-  );
+  // Get clients with debt (deudaTotal > 0)
+  const clientsWithDebt = useMemo(() => {
+    return mockClients.filter(client => client.deudaTotal > 0);
+  }, []);
 
-  // Get current filtered orders based on active tab
-  const getCurrentOrders = () => {
-    switch (activeTab) {
-      case 0: return ordersToday;
-      case 1: return ordersTomorrow;
-      case 2: return ordersThisWeek;
-      default: return ordersToday;
-    }
-  };
+  // Get payments collected today by this repartidor
+  const paymentsToday = useMemo(() => {
+    return mockPagos.filter(pago => {
+      const pagoDate = new Date(pago.fecha);
+      return pago.repartidorId === repartidor.id && isToday(pagoDate);
+    });
+  }, [repartidor.id]);
 
-  const currentOrders = getCurrentOrders();
+  const totalCollectedToday = useMemo(() => {
+    return paymentsToday.reduce((sum, pago) => sum + pago.monto, 0);
+  }, [paymentsToday]);
 
   const handleOrderClick = (order) => {
     // Get client data
@@ -113,6 +118,16 @@ const Home = () => {
           </div>
         </div>
       </Card>
+
+      {/* Calendar Button */}
+      <div className="flex justify-content-end mb-3">
+        <Button
+          label="Seleccionar Fecha"
+          icon="pi pi-calendar"
+          className="p-button-outlined"
+          onClick={() => setShowCalendar(true)}
+        />
+      </div>
 
       {/* Tabs for date filtering */}
       <TabView activeIndex={activeTab} onTabChange={(e) => setActiveTab(e.index)}>
@@ -210,53 +225,138 @@ const Home = () => {
           </div>
         </TabPanel>
 
-        <TabPanel header={`LA SEMANA (${ordersThisWeek.length})`}>
+        <TabPanel header={`DEUDAS DEL DÍA (${clientsWithDebt.length})`}>
           <div className="mt-2">
-            {ordersThisWeek.length === 0 ? (
+            {clientsWithDebt.length === 0 ? (
               <Card>
                 <div className="text-center py-4">
-                  <i className="pi pi-calendar text-6xl text-gray-400 mb-3"></i>
-                  <h3>Sin entregas</h3>
-                  <p className="text-gray-600">No hay más entregas esta semana.</p>
+                  <i className="pi pi-check-circle text-6xl text-success mb-3"></i>
+                  <h3>¡Sin deudas!</h3>
+                  <p className="text-gray-600">No hay clientes con deuda pendiente.</p>
                 </div>
               </Card>
             ) : (
-              ordersThisWeek.map((order) => (
+              clientsWithDebt.map((client) => (
                 <Card
-                  key={order.id}
-                  className="mb-3 cursor-pointer hover:shadow-4 transition-duration-200"
-                  onClick={() => handleOrderClick(order)}
+                  key={client.id}
+                  className="mb-3"
                 >
                   <div className="flex align-items-start justify-content-between">
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600 mb-1">
-                        {new Date(order.date).toLocaleDateString('es-AR', {
-                          weekday: 'long',
-                          day: 'numeric',
-                          month: 'long'
-                        })}
-                      </div>
                       <h3 className="text-xl font-bold mb-2">
-                        #{order.id} - {order.clientName}
+                        {client.name}
                       </h3>
                       <p className="text-gray-600 mb-2">
                         <i className="pi pi-map-marker mr-2" style={{ color: '#E31E24' }}></i>
-                        {order.clientAddress}
+                        {client.address}
                       </p>
-                      {order.total > 0 && (
-                        <p className="text-xl font-bold text-primary">
-                          {formatCurrency(order.total)}
-                        </p>
+                      <div className="flex align-items-center gap-2">
+                        <span className="text-sm text-gray-600">Deuda Total:</span>
+                        <span className="text-2xl font-bold" style={{ color: '#EF4444' }}>
+                          {formatCurrency(client.deudaTotal)}
+                        </span>
+                      </div>
+                      {client.desgloseBajadas && client.desgloseBajadas.length > 0 && (
+                        <div className="mt-2 text-sm text-gray-600">
+                          {client.desgloseBajadas.length} bajada{client.desgloseBajadas.length !== 1 ? 's' : ''} pendiente{client.desgloseBajadas.length !== 1 ? 's' : ''}
+                        </div>
                       )}
                     </div>
-                    <i className="pi pi-chevron-right text-2xl text-gray-400"></i>
                   </div>
                 </Card>
               ))
             )}
           </div>
         </TabPanel>
+
+        <TabPanel header={`COBRADOS HOY (${paymentsToday.length})`}>
+          <div className="mt-2">
+            {paymentsToday.length === 0 ? (
+              <Card>
+                <div className="text-center py-4">
+                  <i className="pi pi-wallet text-6xl text-gray-400 mb-3"></i>
+                  <h3>Sin cobros registrados</h3>
+                  <p className="text-gray-600">No hay cobros registrados para hoy.</p>
+                </div>
+              </Card>
+            ) : (
+              <>
+                <Card className="mb-3" style={{ backgroundColor: '#F0FDF4' }}>
+                  <div className="text-center">
+                    <div className="text-sm text-gray-600 mb-1">Total Cobrado Hoy</div>
+                    <div className="text-3xl font-bold text-success">
+                      {formatCurrency(totalCollectedToday)}
+                    </div>
+                  </div>
+                </Card>
+                {paymentsToday.map((pago) => (
+                  <Card
+                    key={pago.id}
+                    className="mb-3"
+                  >
+                    <div className="flex align-items-start justify-content-between">
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold mb-2">
+                          {pago.clienteName}
+                        </h3>
+                        <div className="flex flex-column gap-2">
+                          <div className="text-sm">
+                            <i className="pi pi-clock mr-2"></i>
+                            <strong>Hora:</strong> {pago.hora}
+                          </div>
+                          <div className="text-sm">
+                            <i className="pi pi-credit-card mr-2"></i>
+                            <strong>Método:</strong> {pago.metodo}
+                          </div>
+                          {pago.notas && (
+                            <div className="text-sm text-gray-600">
+                              <i className="pi pi-info-circle mr-2"></i>
+                              {pago.notas}
+                            </div>
+                          )}
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-2xl font-bold text-success">
+                            {formatCurrency(pago.monto)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </>
+            )}
+          </div>
+        </TabPanel>
       </TabView>
+
+      {/* Calendar Dialog */}
+      <Dialog
+        visible={showCalendar}
+        onHide={() => setShowCalendar(false)}
+        header="Seleccionar Fecha"
+        style={{ width: '400px' }}
+      >
+        <div className="flex flex-column align-items-center">
+          <Calendar
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.value)}
+            inline
+            dateFormat="dd/mm/yy"
+          />
+          <div className="mt-3 w-full">
+            <Button
+              label="Ver Entregas"
+              icon="pi pi-check"
+              className="w-full"
+              onClick={() => {
+                console.log('Ver entregas para:', selectedDate);
+                setShowCalendar(false);
+              }}
+            />
+          </div>
+        </div>
+      </Dialog>
 
       {/* Order Detail Modal */}
       {selectedOrder && (

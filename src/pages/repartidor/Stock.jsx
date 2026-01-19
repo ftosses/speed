@@ -73,25 +73,36 @@ const RepartidorStock = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {PRODUCTS.map((producto) => {
+      <div className="flex flex-column gap-2">
+        {filteredProducts.map((producto) => {
           const stockStatus = producto.stock > 100 ? 'success' : producto.stock > 20 ? 'warning' : 'danger';
           const stockLabel = producto.stock > 100 ? 'OK' : producto.stock > 20 ? 'Bajo' : 'Crítico';
 
           return (
-            <Card key={producto.id} className="hover:shadow-lg transition-duration-200">
-              <h3 className="text-xl font-bold mb-2">{producto.name}</h3>
-              <p className="text-gray-600 mb-2">
-                Stock: {producto.stock} {producto.unit}s
-              </p>
-              <Tag
-                severity={stockStatus}
-                value={stockLabel}
-                className="mb-2"
-              />
-              <p className="mt-2 text-lg font-semibold">
-                Precio: {formatCurrency(producto.prices[PRICE_LISTS.LISTA_A])}
-              </p>
+            <Card
+              key={producto.id}
+              className="cursor-pointer hover:shadow-4 transition-duration-200"
+              onClick={() => handleProductClick(producto)}
+            >
+              <div className="flex align-items-center justify-content-between">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold mb-1">{producto.name}</h3>
+                  <div className="flex align-items-center gap-3 mb-1">
+                    <span className="text-sm text-gray-600">
+                      <i className="pi pi-box mr-1"></i>
+                      {producto.stock} {producto.unit}s
+                    </span>
+                    <Tag
+                      severity={stockStatus}
+                      value={stockLabel}
+                    />
+                  </div>
+                  <p className="text-base font-semibold mt-1" style={{ color: '#E31E24' }}>
+                    {formatCurrency(producto.prices[PRICE_LISTS.LISTA_A])}
+                  </p>
+                </div>
+                <i className="pi pi-chevron-right text-2xl text-gray-400"></i>
+              </div>
             </Card>
           );
         })}

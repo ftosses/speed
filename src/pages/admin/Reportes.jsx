@@ -36,6 +36,14 @@ const Reportes = () => {
     },
     {
       id: 4,
+      title: 'Deudores',
+      icon: 'pi pi-exclamation-circle',
+      color: '#EF4444',
+      description: 'Análisis completo de deuda de clientes con desglose por bajadas y antigüedad',
+      path: '/admin/reportes/deudores'
+    },
+    {
+      id: 5,
       title: 'Libro IVA Ventas',
       icon: 'pi pi-book',
       color: '#8B5CF6',
@@ -89,7 +97,7 @@ const Reportes = () => {
 
       <div className="grid">
         {reports.map((report) => (
-          <div key={report.id} className="col-12 md:col-6 mb-3">
+          <div key={report.id} className="col-12 md:col-4 mb-3">
             <Card
               className="h-full cursor-pointer hover:shadow-4 transition-duration-200"
               onClick={() => handleReportClick(report.path)}

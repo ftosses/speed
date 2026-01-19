@@ -8,6 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { InputNumber } from 'primereact/inputnumber';
 import { mockGastos } from '../../services/mockData';
 import { formatCurrency } from '../../utils/helpers';
 
@@ -17,12 +18,20 @@ const Gastos = () => {
   const [selectedRepartidor, setSelectedRepartidor] = useState(null);
   const [selectedTipo, setSelectedTipo] = useState(null);
   const [selectedEstado, setSelectedEstado] = useState(null);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [dateRange, setDateRange] = useState(null); // Changed to range
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedGasto, setSelectedGasto] = useState(null);
   const [editedEstado, setEditedEstado] = useState('');
   const [editedObservaciones, setEditedObservaciones] = useState('');
+  const [showNewGastoModal, setShowNewGastoModal] = useState(false);
+  const [newGastoData, setNewGastoData] = useState({
+    tipo: '',
+    tipoCustom: '',
+    monto: 0,
+    fecha: new Date(),
+    descripcion: '',
+    comprobante: null
+  });
 
   useEffect(() => {
     let filteredGastos = mockGastos;
@@ -39,15 +48,16 @@ const Gastos = () => {
       filteredGastos = filteredGastos.filter(g => g.estado === selectedEstado);
     }
 
-    if (startDate && endDate) {
+    // Filter by date range
+    if (dateRange && dateRange[0] && dateRange[1]) {
       filteredGastos = filteredGastos.filter(g => {
         const gastoDate = new Date(g.fecha);
-        return gastoDate >= startDate && gastoDate <= endDate;
+        return gastoDate >= dateRange[0] && gastoDate <= dateRange[1];
       });
     }
 
     setGastos(filteredGastos);
-  }, [selectedRepartidor, selectedTipo, selectedEstado, startDate, endDate]);
+  }, [selectedRepartidor, selectedTipo, selectedEstado, dateRange]);
 
   const repartidorOptions = [
     { label: 'Todos', value: null },
@@ -86,6 +96,19 @@ const Gastos = () => {
     // Aquí iría la lógica para guardar en el backend
     setShowDetailModal(false);
     setSelectedGasto(null);
+  };
+
+  const handleSaveNewGasto = () => {
+    console.log('Guardando nuevo gasto:', newGastoData);
+    alert('Gasto registrado exitosamente');
+    setShowNewGastoModal(false);
+    setNewGastoData({
+      tipo: '',
+      monto: 0,
+      fecha: new Date(),
+      descripcion: '',
+      comprobante: null
+    });
   };
 
   // Column templates
@@ -163,7 +186,15 @@ const Gastos = () => {
       <div className="flex gap-2">
         <Button
           icon="pi pi-eye"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Ver detalle"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -211,20 +242,22 @@ const Gastos = () => {
           showClear={selectedEstado !== null}
         />
         <Calendar
-          value={startDate}
-          onChange={(e) => setStartDate(e.value)}
-          placeholder="Desde"
+          value={dateRange}
+          onChange={(e) => setDateRange(e.value)}
+          selectionMode="range"
+          readOnlyInput
+          placeholder="Seleccionar rango de fechas"
           dateFormat="dd/mm/yy"
           showIcon
-        />
-        <Calendar
-          value={endDate}
-          onChange={(e) => setEndDate(e.value)}
-          placeholder="Hasta"
-          dateFormat="dd/mm/yy"
-          showIcon
+          showButtonBar
         />
       </div>
+      <Button
+        label="Cargar Gasto"
+        icon="pi pi-plus"
+        className="p-button-danger"
+        onClick={() => setShowNewGastoModal(true)}
+      />
     </div>
   );
 
@@ -407,6 +440,111 @@ const Gastos = () => {
             </div>
           </div>
         )}
+      </Dialog>
+
+      {/* New Gasto Modal */}
+      <Dialog
+        visible={showNewGastoModal}
+        onHide={() => setShowNewGastoModal(false)}
+        header="Cargar Nuevo Gasto"
+        style={{ width: '600px' }}
+        modal
+        dismissableMask
+      >
+        <div className="p-4">
+          <div className="grid">
+            <div className="col-12 md:col-6 mb-3">
+              <label className="block text-sm font-semibold mb-2">Tipo *</label>
+              <Dropdown
+                value={newGastoData.tipo}
+                onChange={(e) => setNewGastoData({ ...newGastoData, tipo: e.value, tipoCustom: '' })}
+                options={[
+                  { label: 'Seleccionar...', value: '' },
+                  { label: 'Nafta', value: 'Nafta' },
+                  { label: 'Peaje', value: 'Peaje' },
+                  { label: 'Vianda', value: 'Vianda' },
+                  { label: 'Viático', value: 'Viático' },
+                  { label: 'Otro', value: 'Otro' }
+                ]}
+                className="w-full"
+                placeholder="Seleccionar tipo de gasto"
+              />
+            </div>
+
+            {newGastoData.tipo === 'Otro' && (
+              <div className="col-12 mb-3">
+                <label className="block text-sm font-semibold mb-2">Especificar Tipo *</label>
+                <InputText
+                  value={newGastoData.tipoCustom}
+                  onChange={(e) => setNewGastoData({ ...newGastoData, tipoCustom: e.target.value })}
+                  placeholder="Ingrese el tipo de gasto"
+                  className="w-full"
+                />
+              </div>
+            )}
+
+            <div className="col-12 md:col-6 mb-3">
+              <label className="block text-sm font-semibold mb-2">Monto *</label>
+              <InputNumber
+                value={newGastoData.monto}
+                onValueChange={(e) => setNewGastoData({ ...newGastoData, monto: e.value })}
+                mode="currency"
+                currency="ARS"
+                locale="es-AR"
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 mb-3">
+              <label className="block text-sm font-semibold mb-2">Fecha *</label>
+              <Calendar
+                value={newGastoData.fecha}
+                onChange={(e) => setNewGastoData({ ...newGastoData, fecha: e.value })}
+                showIcon
+                showTime
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 mb-3">
+              <label className="block text-sm font-semibold mb-2">Descripción</label>
+              <InputTextarea
+                value={newGastoData.descripcion}
+                onChange={(e) => setNewGastoData({ ...newGastoData, descripcion: e.target.value })}
+                rows={3}
+                placeholder="Detalles del gasto..."
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 mb-3">
+              <label className="block text-sm font-semibold mb-2">Comprobante (opcional)</label>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setNewGastoData({ ...newGastoData, comprobante: e.target.files[0] })}
+                className="w-full p-2 border-1 border-gray-300 border-round"
+              />
+              <small className="text-gray-600">Formatos aceptados: Imágenes y PDF</small>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              label="Cancelar"
+              className="p-button-secondary"
+              onClick={() => setShowNewGastoModal(false)}
+            />
+            <Button
+              label="Guardar Gasto"
+              className="p-button-danger"
+              onClick={handleSaveNewGasto}
+              disabled={!newGastoData.tipo || !newGastoData.monto}
+            />
+          </div>
+        </div>
       </Dialog>
     </div>
   );

@@ -11,7 +11,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { ConfirmDialog } from 'primereact/confirmdialog';
-import { mockOrders, mockRepartidores } from '../../services/mockData';
+import { mockOrders, mockRepartidores, mockClients } from '../../services/mockData';
 import { ZONES, ORDER_STATUS, ORDER_STATUS_LABELS, PRODUCTS, PRICE_LISTS } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/helpers';
 import { useZone } from '../../context/ZoneContext';
@@ -31,6 +31,14 @@ const Pedidos = () => {
   const [editItems, setEditItems] = useState([]);
   const [editNotes, setEditNotes] = useState('');
   const [editDiscountPercent, setEditDiscountPercent] = useState(0);
+
+  // New order modal state
+  const [showNewOrderModal, setShowNewOrderModal] = useState(false);
+  const [newOrderClienteId, setNewOrderClienteId] = useState(null);
+  const [newOrderItems, setNewOrderItems] = useState([]);
+  const [newOrderNotes, setNewOrderNotes] = useState('');
+  const [newOrderDate, setNewOrderDate] = useState(new Date());
+  const [newOrderRepartidorId, setNewOrderRepartidorId] = useState(null);
 
   useEffect(() => {
     let filteredOrders = mockOrders;
@@ -62,7 +70,84 @@ const Pedidos = () => {
   };
 
   const handleNewOrder = () => {
-    console.log('Cargar nuevo pedido');
+    setNewOrderClienteId(null);
+    setNewOrderItems([]);
+    setNewOrderNotes('');
+    setNewOrderDate(new Date());
+    setNewOrderRepartidorId(null);
+    setShowNewOrderModal(true);
+  };
+
+  const handleAddNewOrderProduct = () => {
+    const newItem = {
+      productId: null,
+      productName: '',
+      quantity: 1,
+      pricePerUnit: 0,
+      priceList: PRICE_LISTS.LISTA_B,
+      subtotal: 0
+    };
+    setNewOrderItems([...newOrderItems, newItem]);
+  };
+
+  const handleRemoveNewOrderProduct = (index) => {
+    const newItems = newOrderItems.filter((_, i) => i !== index);
+    setNewOrderItems(newItems);
+  };
+
+  const handleNewOrderProductChange = (index, field, value) => {
+    const newItems = [...newOrderItems];
+    newItems[index][field] = value;
+
+    if (field === 'productId' && value) {
+      const product = PRODUCTS.find(p => p.id === value);
+      if (product) {
+        newItems[index].productName = product.name;
+        newItems[index].pricePerUnit = product.prices[newItems[index].priceList] || 0;
+      }
+    }
+
+    // If price list changes, update the price per unit
+    if (field === 'priceList' && newItems[index].productId) {
+      const product = PRODUCTS.find(p => p.id === newItems[index].productId);
+      if (product) {
+        newItems[index].pricePerUnit = product.prices[value] || 0;
+      }
+    }
+
+    newItems[index].subtotal = newItems[index].quantity * newItems[index].pricePerUnit;
+    setNewOrderItems(newItems);
+  };
+
+  const calculateNewOrderTotal = () => {
+    return newOrderItems.reduce((sum, item) => sum + item.subtotal, 0);
+  };
+
+  const handleSaveNewOrder = () => {
+    if (!newOrderClienteId) {
+      alert('Debe seleccionar un cliente');
+      return;
+    }
+    if (newOrderItems.length === 0) {
+      alert('Debe agregar al menos un producto');
+      return;
+    }
+    if (!newOrderRepartidorId) {
+      alert('Debe seleccionar un repartidor');
+      return;
+    }
+
+    console.log('Guardando nuevo pedido:', {
+      clienteId: newOrderClienteId,
+      items: newOrderItems,
+      notes: newOrderNotes,
+      date: newOrderDate,
+      repartidorId: newOrderRepartidorId,
+      total: calculateNewOrderTotal()
+    });
+
+    alert('Pedido creado exitosamente');
+    setShowNewOrderModal(false);
   };
 
   const handleDeleteOrder = (order) => {
@@ -216,12 +301,26 @@ const Pedidos = () => {
     );
   };
 
+  const handleDownloadRemito = (order) => {
+    console.log('Descargando remito para pedido:', order.id);
+    // TODO: Implement PDF remito generation
+    alert(`Generando remito para pedido #${order.orderNumber}`);
+  };
+
   const actionsBodyTemplate = (rowData) => {
     return (
       <div className="flex gap-2">
         <Button
           icon="pi pi-pencil"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Editar"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -230,8 +329,34 @@ const Pedidos = () => {
           }}
         />
         <Button
+          icon="pi pi-download"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
+          tooltip="Descargar Remito"
+          tooltipOptions={{ position: 'top' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownloadRemito(rowData);
+          }}
+        />
+        <Button
           icon="pi pi-trash"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Eliminar"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -472,10 +597,11 @@ const Pedidos = () => {
               <div className="flex justify-content-between align-items-center mb-3">
                 <h3 className="m-0">📦 Productos</h3>
                 <Button
-                  label="Agregar Producto"
                   icon="pi pi-plus"
-                  className="p-button-sm p-button-success"
+                  className="p-button-sm p-button-success p-button-rounded"
                   onClick={handleAddProduct}
+                  tooltip="Agregar Producto"
+                  tooltipOptions={{ position: 'left' }}
                 />
               </div>
 
@@ -603,6 +729,204 @@ const Pedidos = () => {
             </div>
           </div>
         )}
+      </Dialog>
+
+      {/* New Order Modal */}
+      <Dialog
+        visible={showNewOrderModal}
+        onHide={() => setShowNewOrderModal(false)}
+        header="Cargar Nuevo Pedido"
+        style={{ width: '90vw', maxWidth: '1200px' }}
+        breakpoints={{ '960px': '95vw' }}
+        maximizable
+      >
+        <div className="p-fluid">
+          {/* Client, Date, and Repartidor Selection */}
+          <div className="grid mb-4">
+            <div className="col-12">
+              <h3 className="mb-3">📋 Información del Pedido</h3>
+            </div>
+
+            <div className="col-12 md:col-4 mb-3">
+              <label htmlFor="newOrderCliente" className="font-bold mb-2 block">
+                Cliente *
+              </label>
+              <Dropdown
+                id="newOrderCliente"
+                value={newOrderClienteId}
+                options={mockClients.map(c => ({
+                  label: `${c.name} - ${c.address}`,
+                  value: c.id
+                }))}
+                onChange={(e) => setNewOrderClienteId(e.value)}
+                placeholder="Seleccionar cliente"
+                filter
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 md:col-4 mb-3">
+              <label htmlFor="newOrderDate" className="font-bold mb-2 block">
+                Fecha del Pedido *
+              </label>
+              <Calendar
+                id="newOrderDate"
+                value={newOrderDate}
+                onChange={(e) => setNewOrderDate(e.value)}
+                dateFormat="dd/mm/yy"
+                showIcon
+                showTime
+                hourFormat="24"
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 md:col-4 mb-3">
+              <label htmlFor="newOrderRepartidor" className="font-bold mb-2 block">
+                Repartidor *
+              </label>
+              <Dropdown
+                id="newOrderRepartidor"
+                value={newOrderRepartidorId}
+                options={repartidorOptions}
+                onChange={(e) => setNewOrderRepartidorId(e.value)}
+                placeholder="Seleccionar repartidor"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Products Section */}
+          <div className="mb-4">
+            <div className="flex justify-content-between align-items-center mb-3">
+              <h3 className="m-0">📦 Productos</h3>
+              <Button
+                icon="pi pi-plus"
+                className="p-button-sm p-button-success p-button-rounded"
+                onClick={handleAddNewOrderProduct}
+                tooltip="Agregar Producto"
+                tooltipOptions={{ position: 'left' }}
+              />
+            </div>
+
+            {newOrderItems.length === 0 ? (
+              <div className="text-center p-4 border-1 border-gray-300 border-round">
+                <p className="text-gray-500">No hay productos agregados. Haga clic en "Agregar Producto" para comenzar.</p>
+              </div>
+            ) : (
+              newOrderItems.map((item, index) => (
+                <div key={index} className="grid mb-3 p-3 border-1 border-gray-300 border-round">
+                  <div className="col-12 md:col-4 mb-2">
+                    <label className="font-bold mb-2 block">Producto</label>
+                    <Dropdown
+                      value={item.productId}
+                      options={productOptions}
+                      onChange={(e) => handleNewOrderProductChange(index, 'productId', e.value)}
+                      placeholder="Seleccionar producto"
+                      filter
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="col-12 md:col-2 mb-2">
+                    <label className="font-bold mb-2 block">Lista de Precio</label>
+                    <Dropdown
+                      value={item.priceList}
+                      options={[
+                        { label: 'Lista A', value: PRICE_LISTS.LISTA_A },
+                        { label: 'Lista B', value: PRICE_LISTS.LISTA_B }
+                      ]}
+                      onChange={(e) => handleNewOrderProductChange(index, 'priceList', e.value)}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="col-12 md:col-2 mb-2">
+                    <label className="font-bold mb-2 block">Cantidad</label>
+                    <InputNumber
+                      value={item.quantity}
+                      onValueChange={(e) => handleNewOrderProductChange(index, 'quantity', e.value)}
+                      min={1}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="col-12 md:col-2 mb-2">
+                    <label className="font-bold mb-2 block">Precio Unit.</label>
+                    <InputNumber
+                      value={item.pricePerUnit}
+                      onValueChange={(e) => handleNewOrderProductChange(index, 'pricePerUnit', e.value)}
+                      mode="currency"
+                      currency="ARS"
+                      locale="es-AR"
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="col-12 md:col-2 mb-2">
+                    <label className="font-bold mb-2 block">Subtotal</label>
+                    <div className="flex align-items-center gap-2">
+                      <span className="font-bold">{formatCurrency(item.subtotal)}</span>
+                      <Button
+                        icon="pi pi-trash"
+                        className="p-button-danger p-button-sm p-button-text"
+                        onClick={() => handleRemoveNewOrderProduct(index)}
+                        tooltip="Eliminar"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Total */}
+          <div className="grid mb-4">
+            <div className="col-12">
+              <h3 className="mb-3">💰 Total</h3>
+            </div>
+            <div className="col-12">
+              <div className="text-right">
+                <strong>Total del Pedido:</strong>
+                <div className="text-3xl font-bold mt-1" style={{ color: '#E31E24' }}>
+                  {formatCurrency(calculateNewOrderTotal())}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Notes Section */}
+          <div className="mb-4">
+            <label htmlFor="newOrderNotes" className="font-bold mb-2 block">
+              📝 Notas / Observaciones
+            </label>
+            <InputTextarea
+              id="newOrderNotes"
+              value={newOrderNotes}
+              onChange={(e) => setNewOrderNotes(e.target.value)}
+              rows={3}
+              placeholder="Agregar notas sobre el pedido..."
+              className="w-full"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-content-end gap-2 mt-4">
+            <Button
+              label="Cancelar"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setShowNewOrderModal(false)}
+            />
+            <Button
+              label="Crear Pedido"
+              icon="pi pi-check"
+              className="p-button-danger"
+              onClick={handleSaveNewOrder}
+              disabled={!newOrderClienteId || !newOrderRepartidorId || newOrderItems.length === 0}
+            />
+          </div>
+        </div>
       </Dialog>
     </div>
   );

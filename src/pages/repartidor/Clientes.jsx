@@ -7,10 +7,12 @@ import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Calendar } from 'primereact/calendar';
 import { useAuth } from '../../context/AuthContext';
 import { mockClients, mockOrders } from '../../services/mockData';
-import { ZONES, PRODUCTS, PRICE_LISTS } from '../../utils/constants';
+import { ZONES, PRODUCTS, PRICE_LISTS, PAYMENT_METHODS } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/helpers';
+import OrderDetailModal from '../../components/repartidor/OrderDetailModal';
 
 const RepartidorClientes = () => {
   const { user } = useAuth();
@@ -18,16 +20,41 @@ const RepartidorClientes = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [showNewOrderDialog, setShowNewOrderDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showOrderDetailModal, setShowOrderDetailModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  // Filter state
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState(null);
+  const [debtFilter, setDebtFilter] = useState(null);
 
   // New order state
   const [orderItems, setOrderItems] = useState([]);
   const [orderNotes, setOrderNotes] = useState('');
 
+  // Payment state
+  const [paymentDate, setPaymentDate] = useState(new Date());
+  const [paymentAmount, setPaymentAmount] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [paymentNotes, setPaymentNotes] = useState('');
+
   // Get repartidor's assigned zone (mock: Juan = Zona Sur, Pedro = San Telmo)
   const myZone = user.id === 1 ? ZONES.SUR.id : ZONES.SAN_TELMO.id;
 
   // Filter clients by repartidor's zone
-  const myClients = mockClients.filter(client => client.zone === myZone);
+  let myClients = mockClients.filter(client => client.zone === myZone);
+
+  // Apply payment status filter
+  if (paymentStatusFilter) {
+    myClients = myClients.filter(client => client.estadoPago === paymentStatusFilter);
+  }
+
+  // Apply debt filter
+  if (debtFilter === 'with_debt') {
+    myClients = myClients.filter(client => client.deudaTotal > 0);
+  } else if (debtFilter === 'no_debt') {
+    myClients = myClients.filter(client => client.deudaTotal === 0);
+  }
 
   // Filter by search term
   const filteredClients = myClients.filter(client =>
@@ -115,6 +142,50 @@ const RepartidorClientes = () => {
     setOrderNotes('');
   };
 
+  const handleCargarPago = (client) => {
+    setSelectedClient(client);
+    setPaymentDate(new Date());
+    setPaymentAmount(client.deudaTotal || 0);
+    setPaymentMethod('');
+    setPaymentNotes('');
+    setShowDetailDialog(false);
+    setShowPaymentDialog(true);
+  };
+
+  const handleSavePayment = () => {
+    if (!paymentMethod) {
+      alert('Debe seleccionar un método de pago');
+      return;
+    }
+
+    if (paymentAmount <= 0) {
+      alert('El monto debe ser mayor a 0');
+      return;
+    }
+
+    const newPayment = {
+      fecha: paymentDate.toISOString(),
+      hora: paymentDate.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }),
+      clienteId: selectedClient.id,
+      clienteName: selectedClient.name,
+      monto: paymentAmount,
+      metodo: paymentMethod,
+      repartidorId: user.id,
+      repartidorName: user.name,
+      notas: paymentNotes
+    };
+
+    console.log('Registrando pago:', newPayment);
+    alert('Pago registrado exitosamente');
+    setShowPaymentDialog(false);
+  };
+
+  const handleOrderClick = (order) => {
+    const client = mockClients.find(c => c.id === order.clientId);
+    setSelectedOrder({ ...order, client });
+    setShowOrderDetailModal(true);
+  };
+
   // Get client's recent orders
   const getClientOrders = (clientId) => {
     return mockOrders
@@ -142,7 +213,7 @@ const RepartidorClientes = () => {
       </div>
 
       <div className="mb-3">
-        <span className="p-input-icon-left w-full">
+        <span className="p-input-icon-left w-full mb-2">
           <i className="pi pi-search" />
           <InputText
             value={searchTerm}
@@ -151,6 +222,33 @@ const RepartidorClientes = () => {
             className="w-full"
           />
         </span>
+        <div className="flex gap-2 flex-wrap mt-2">
+          <Dropdown
+            value={paymentStatusFilter}
+            onChange={(e) => setPaymentStatusFilter(e.value)}
+            options={[
+              { label: 'Todos los estados', value: null },
+              { label: 'Pagado', value: 'Pagado' },
+              { label: 'Pendiente', value: 'Pendiente' },
+              { label: 'Deudor', value: 'Deudor' }
+            ]}
+            placeholder="Filtrar por estado de pago"
+            showClear={!!paymentStatusFilter}
+            className="flex-1"
+          />
+          <Dropdown
+            value={debtFilter}
+            onChange={(e) => setDebtFilter(e.value)}
+            options={[
+              { label: 'Todos', value: null },
+              { label: 'Con deuda', value: 'with_debt' },
+              { label: 'Sin deuda', value: 'no_debt' }
+            ]}
+            placeholder="Filtrar por deuda"
+            showClear={!!debtFilter}
+            className="flex-1"
+          />
+        </div>
       </div>
 
       <div className="grid">
@@ -261,7 +359,10 @@ const RepartidorClientes = () => {
                 <div className="grid">
                   {getClientOrders(selectedClient.id).map(order => (
                     <div key={order.id} className="col-12 mb-2">
-                      <Card className="shadow-1">
+                      <Card
+                        className="shadow-1 cursor-pointer hover:shadow-4 transition-duration-200"
+                        onClick={() => handleOrderClick(order)}
+                      >
                         <div className="flex justify-content-between align-items-center">
                           <div>
                             <div className="font-semibold">Pedido #{order.id}</div>
@@ -286,13 +387,22 @@ const RepartidorClientes = () => {
               )}
             </div>
 
-            <div className="flex gap-2 justify-content-between">
-              <Button
-                label="Cargar Pedido"
-                icon="pi pi-plus-circle"
-                className="p-button-danger"
-                onClick={() => handleCargarPedido(selectedClient)}
-              />
+            <div className="flex gap-2 justify-content-between flex-wrap">
+              <div className="flex gap-2">
+                <Button
+                  label="Cargar Pedido"
+                  icon="pi pi-plus-circle"
+                  className="p-button-danger"
+                  onClick={() => handleCargarPedido(selectedClient)}
+                />
+                <Button
+                  label="Cargar Pago"
+                  icon="pi pi-wallet"
+                  className="p-button-success"
+                  onClick={() => handleCargarPago(selectedClient)}
+                  disabled={!selectedClient.deudaTotal || selectedClient.deudaTotal === 0}
+                />
+              </div>
               <Button
                 label="Cerrar"
                 icon="pi pi-times"
@@ -350,13 +460,7 @@ const RepartidorClientes = () => {
               {orderItems.length === 0 ? (
                 <div className="text-center py-4 bg-gray-50 border-round">
                   <i className="pi pi-inbox text-4xl text-gray-400 mb-2"></i>
-                  <p className="text-gray-600">No hay productos agregados</p>
-                  <Button
-                    label="Agregar Primer Producto"
-                    icon="pi pi-plus"
-                    className="p-button-sm"
-                    onClick={handleAddProduct}
-                  />
+                  <p className="text-gray-600">No hay productos agregados. Usa el botón "Agregar Producto" de arriba para comenzar.</p>
                 </div>
               ) : (
                 orderItems.map((item, index) => (
@@ -453,6 +557,134 @@ const RepartidorClientes = () => {
           </div>
         )}
       </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog
+        header={
+          <div className="flex align-items-center gap-2">
+            <i className="pi pi-wallet text-2xl" style={{ color: '#22C55E' }}></i>
+            <span>Cargar Pago</span>
+          </div>
+        }
+        visible={showPaymentDialog}
+        onHide={() => setShowPaymentDialog(false)}
+        style={{ width: '600px', maxWidth: '95vw' }}
+        modal
+      >
+        {selectedClient && (
+          <div className="p-fluid">
+            {/* Client Info */}
+            <div className="mb-4 p-3 bg-green-50 border-round">
+              <h3 className="mb-2">{selectedClient.name}</h3>
+              <div className="flex justify-content-between align-items-center">
+                <span className="text-gray-700">Deuda Total:</span>
+                <span className="text-2xl font-bold" style={{ color: '#EF4444' }}>
+                  {formatCurrency(selectedClient.deudaTotal || 0)}
+                </span>
+              </div>
+            </div>
+
+            {/* Payment Date */}
+            <div className="mb-4">
+              <label htmlFor="paymentDate" className="font-bold mb-2 block">
+                📅 Fecha y Hora del Pago
+              </label>
+              <Calendar
+                id="paymentDate"
+                value={paymentDate}
+                onChange={(e) => setPaymentDate(e.value)}
+                showIcon
+                showTime
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                className="w-full"
+              />
+            </div>
+
+            {/* Payment Amount */}
+            <div className="mb-4">
+              <label htmlFor="paymentAmount" className="font-bold mb-2 block">
+                💰 Monto del Pago
+              </label>
+              <InputNumber
+                id="paymentAmount"
+                value={paymentAmount}
+                onValueChange={(e) => setPaymentAmount(e.value || 0)}
+                mode="currency"
+                currency="ARS"
+                locale="es-AR"
+                className="w-full"
+              />
+              {paymentAmount < selectedClient.deudaTotal && paymentAmount > 0 && (
+                <small className="text-orange-600 mt-2 block">
+                  ⚠️ Pago parcial. Deuda restante: {formatCurrency(selectedClient.deudaTotal - paymentAmount)}
+                </small>
+              )}
+            </div>
+
+            {/* Payment Method */}
+            <div className="mb-4">
+              <label htmlFor="paymentMethod" className="font-bold mb-2 block">
+                💳 Método de Pago
+              </label>
+              <Dropdown
+                id="paymentMethod"
+                value={paymentMethod}
+                options={[
+                  { label: 'Seleccionar método...', value: '' },
+                  { label: '💵 Efectivo', value: PAYMENT_METHODS.EFECTIVO },
+                  { label: '🏦 EFT/Transferencia', value: PAYMENT_METHODS.EFT_TRANS },
+                  { label: '💳 Tarjeta', value: PAYMENT_METHODS.TARJETA }
+                ]}
+                onChange={(e) => setPaymentMethod(e.value)}
+                placeholder="Seleccionar método de pago"
+                className="w-full"
+              />
+            </div>
+
+            {/* Payment Notes */}
+            <div className="mb-4">
+              <label htmlFor="paymentNotes" className="font-bold mb-2 block">
+                📝 Observaciones (opcional)
+              </label>
+              <InputTextarea
+                id="paymentNotes"
+                value={paymentNotes}
+                onChange={(e) => setPaymentNotes(e.target.value)}
+                rows={3}
+                placeholder="Agregar notas sobre el pago..."
+                className="w-full"
+              />
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 justify-content-end">
+              <Button
+                label="Cancelar"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setShowPaymentDialog(false)}
+              />
+              <Button
+                label="Registrar Pago"
+                icon="pi pi-check"
+                className="p-button-success"
+                onClick={handleSavePayment}
+                disabled={!paymentMethod || paymentAmount <= 0}
+              />
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      {/* Order Detail Modal */}
+      {selectedOrder && (
+        <OrderDetailModal
+          visible={showOrderDetailModal}
+          onHide={() => setShowOrderDetailModal(false)}
+          order={selectedOrder}
+        />
+      )}
     </div>
   );
 };

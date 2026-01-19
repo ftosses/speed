@@ -36,7 +36,10 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '9:00 - 18:00',
     acceptsConsignment: true,
-    lastPurchase: '2025-11-07'
+    lastPurchase: '2025-11-07',
+    estadoPago: 'Pagado',
+    deudaTotal: 0,
+    desgloseBajadas: []
   },
   {
     id: 2,
@@ -58,7 +61,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '8:00 - 22:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-06'
+    lastPurchase: '2025-11-06',
+    estadoPago: 'Deudor',
+    deudaTotal: 45000,
+    desgloseBajadas: [
+      { fecha: '2025-11-02', montoOriginal: 25000, montoPagado: 0, saldoPendiente: 25000 },
+      { fecha: '2025-11-06', montoOriginal: 20000, montoPagado: 0, saldoPendiente: 20000 }
+    ]
   },
   {
     id: 3,
@@ -80,7 +89,12 @@ export const mockClients = [
     hasCompleteData: false,
     schedule: '20:00 - 6:00',
     acceptsConsignment: true,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Deudor',
+    deudaTotal: 20920,
+    desgloseBajadas: [
+      { fecha: '2025-10-28', montoOriginal: 20920, montoPagado: 0, saldoPendiente: 20920 }
+    ]
   },
   {
     id: 4,
@@ -102,7 +116,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '7:00 - 22:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-05'
+    lastPurchase: '2025-11-05',
+    estadoPago: 'Deudor',
+    deudaTotal: 82000,
+    desgloseBajadas: [
+      { fecha: '2025-10-20', montoOriginal: 42000, montoPagado: 0, saldoPendiente: 42000 },
+      { fecha: '2025-10-30', montoOriginal: 40000, montoPagado: 0, saldoPendiente: 40000 }
+    ]
   },
   {
     id: 5,
@@ -124,7 +144,10 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '12:00 - 24:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Pagado',
+    deudaTotal: 0,
+    desgloseBajadas: []
   },
   {
     id: 6,
@@ -146,7 +169,12 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '24 horas',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-07'
+    lastPurchase: '2025-11-07',
+    estadoPago: 'Deudor',
+    deudaTotal: 12500,
+    desgloseBajadas: [
+      { fecha: '2025-11-07', montoOriginal: 12500, montoPagado: 0, saldoPendiente: 12500 }
+    ]
   },
   {
     id: 7,
@@ -168,7 +196,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '10:00 - 02:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-06'
+    lastPurchase: '2025-11-06',
+    estadoPago: 'Deudor',
+    deudaTotal: 35000,
+    desgloseBajadas: [
+      { fecha: '2025-10-25', montoOriginal: 18000, montoPagado: 0, saldoPendiente: 18000 },
+      { fecha: '2025-11-01', montoOriginal: 17000, montoPagado: 0, saldoPendiente: 17000 }
+    ]
   },
   {
     id: 8,
@@ -190,7 +224,14 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '23:00 - 7:00',
     acceptsConsignment: true,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Deudor',
+    deudaTotal: 150000,
+    desgloseBajadas: [
+      { fecha: '2025-10-15', montoOriginal: 80000, montoPagado: 30000, saldoPendiente: 50000 },
+      { fecha: '2025-10-25', montoOriginal: 70000, montoPagado: 0, saldoPendiente: 70000 },
+      { fecha: '2025-11-03', montoOriginal: 30000, montoPagado: 0, saldoPendiente: 30000 }
+    ]
   },
   {
     id: 9,
@@ -212,7 +253,10 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '7:00 - 23:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Pagado',
+    deudaTotal: 0,
+    desgloseBajadas: []
   },
   {
     id: 10,
@@ -234,7 +278,12 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '6:00 - 24:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-07'
+    lastPurchase: '2025-11-07',
+    estadoPago: 'Deudor',
+    deudaTotal: 22000,
+    desgloseBajadas: [
+      { fecha: '2025-10-30', montoOriginal: 22000, montoPagado: 0, saldoPendiente: 22000 }
+    ]
   },
   {
     id: 11,
@@ -256,7 +305,12 @@ export const mockClients = [
     hasCompleteData: false,
     schedule: '8:00 - 22:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Deudor',
+    deudaTotal: 8500,
+    desgloseBajadas: [
+      { fecha: '2025-11-08', montoOriginal: 8500, montoPagado: 0, saldoPendiente: 8500 }
+    ]
   },
   {
     id: 12,
@@ -278,7 +332,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '12:00 - 16:00, 20:00 - 01:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-05'
+    lastPurchase: '2025-11-05',
+    estadoPago: 'Deudor',
+    deudaTotal: 67000,
+    desgloseBajadas: [
+      { fecha: '2025-10-22', montoOriginal: 35000, montoPagado: 0, saldoPendiente: 35000 },
+      { fecha: '2025-11-01', montoOriginal: 32000, montoPagado: 0, saldoPendiente: 32000 }
+    ]
   },
   {
     id: 13,
@@ -300,7 +360,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '7:00 - 23:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Deudor',
+    deudaTotal: 115000,
+    desgloseBajadas: [
+      { fecha: '2025-10-18', montoOriginal: 55000, montoPagado: 0, saldoPendiente: 55000 },
+      { fecha: '2025-10-28', montoOriginal: 60000, montoPagado: 0, saldoPendiente: 60000 }
+    ]
   },
   {
     id: 14,
@@ -322,7 +388,10 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '8:00 - 20:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Pagado',
+    deudaTotal: 0,
+    desgloseBajadas: []
   },
   {
     id: 15,
@@ -344,7 +413,12 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '24 horas',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-07'
+    lastPurchase: '2025-11-07',
+    estadoPago: 'Deudor',
+    deudaTotal: 5200,
+    desgloseBajadas: [
+      { fecha: '2025-11-07', montoOriginal: 5200, montoPagado: 0, saldoPendiente: 5200 }
+    ]
   },
   {
     id: 16,
@@ -366,7 +440,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '23:00 - 8:00',
     acceptsConsignment: true,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Deudor',
+    deudaTotal: 98000,
+    desgloseBajadas: [
+      { fecha: '2025-10-20', montoOriginal: 50000, montoPagado: 0, saldoPendiente: 50000 },
+      { fecha: '2025-10-30', montoOriginal: 48000, montoPagado: 0, saldoPendiente: 48000 }
+    ]
   },
   {
     id: 17,
@@ -388,7 +468,10 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '12:00 - 02:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Pagado',
+    deudaTotal: 0,
+    desgloseBajadas: []
   },
   {
     id: 18,
@@ -410,7 +493,12 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '7:00 - 23:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-06'
+    lastPurchase: '2025-11-06',
+    estadoPago: 'Deudor',
+    deudaTotal: 15000,
+    desgloseBajadas: [
+      { fecha: '2025-11-06', montoOriginal: 15000, montoPagado: 0, saldoPendiente: 15000 }
+    ]
   },
   {
     id: 19,
@@ -432,7 +520,13 @@ export const mockClients = [
     hasCompleteData: true,
     schedule: '19:00 - 01:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-07'
+    lastPurchase: '2025-11-07',
+    estadoPago: 'Deudor',
+    deudaTotal: 42000,
+    desgloseBajadas: [
+      { fecha: '2025-10-28', montoOriginal: 22000, montoPagado: 0, saldoPendiente: 22000 },
+      { fecha: '2025-11-05', montoOriginal: 20000, montoPagado: 0, saldoPendiente: 20000 }
+    ]
   },
   {
     id: 20,
@@ -454,7 +548,12 @@ export const mockClients = [
     hasCompleteData: false,
     schedule: '7:00 - 22:00',
     acceptsConsignment: false,
-    lastPurchase: '2025-11-08'
+    lastPurchase: '2025-11-08',
+    estadoPago: 'Deudor',
+    deudaTotal: 3500,
+    desgloseBajadas: [
+      { fecha: '2025-11-08', montoOriginal: 3500, montoPagado: 0, saldoPendiente: 3500 }
+    ]
   }
 ];
 
@@ -1260,6 +1359,207 @@ export const mockOrders = [
     createdAt: '2025-12-03T14:15:00',
     deliveredAt: null,
     notes: ''
+  },
+  // Sample orders for TODAY - repartidor Juan Pérez (id: 1)
+  {
+    id: 101,
+    orderNumber: '0001-00000101',
+    clientId: 1,
+    clientName: 'Bar El Refugio',
+    clientAddress: 'Av. Montes de Oca 1234, Barracas',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 1, productName: 'Speed 250ml', quantity: 6, pricePerUnit: 1080, priceList: PRICE_LISTS.LISTA_B, subtotal: 6480 }
+    ],
+    subtotal: 6480,
+    discountPercent: 0,
+    discount: 0,
+    total: 6480,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: new Date().toISOString(),
+    deliveredAt: null,
+    notes: 'Entregar antes del mediodía'
+  },
+  {
+    id: 102,
+    orderNumber: '0001-00000102',
+    clientId: 3,
+    clientName: 'Club La Noche',
+    clientAddress: 'Caseros 789, Parque Patricios',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.EN_RUTA,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 1, productName: 'Speed 250ml', quantity: 12, pricePerUnit: 1140, priceList: PRICE_LISTS.LISTA_A, subtotal: 13680 },
+      { productId: 2, productName: 'Speed XL 473ml', quantity: 8, pricePerUnit: 1710, priceList: PRICE_LISTS.LISTA_A, subtotal: 13680 }
+    ],
+    subtotal: 27360,
+    discountPercent: 0,
+    discount: 0,
+    total: 27360,
+    paymentMethod: PAYMENT_METHODS.CUENTA_CORRIENTE,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: 'B',
+    invoiceNumber: null,
+    createdAt: new Date().toISOString(),
+    deliveredAt: null,
+    notes: ''
+  },
+  {
+    id: 103,
+    orderNumber: '0001-00000103',
+    clientId: 5,
+    clientName: 'Minimercado Avenida',
+    clientAddress: 'Av. Independencia 890, Constitución',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 1, productName: 'Speed 250ml', quantity: 20, pricePerUnit: 1080, priceList: PRICE_LISTS.LISTA_B, subtotal: 21600 },
+      { productId: 4, productName: 'Agua BLOCK 500ml', quantity: 10, pricePerUnit: 720, priceList: PRICE_LISTS.LISTA_B, subtotal: 7200 }
+    ],
+    subtotal: 28800,
+    discountPercent: 0,
+    discount: 0,
+    total: 28800,
+    paymentMethod: PAYMENT_METHODS.EFECTIVO,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: new Date().toISOString(),
+    deliveredAt: null,
+    notes: 'Pago al contado'
+  },
+  {
+    id: 104,
+    orderNumber: '0001-00000104',
+    clientId: 7,
+    clientName: 'Restaurant La Esquina',
+    clientAddress: 'Brasil 234, Constitución',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 2, productName: 'Speed XL 473ml', quantity: 6, pricePerUnit: 1620, priceList: PRICE_LISTS.LISTA_B, subtotal: 9720 }
+    ],
+    subtotal: 9720,
+    discountPercent: 0,
+    discount: 0,
+    total: 9720,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: new Date().toISOString(),
+    deliveredAt: null,
+    notes: ''
+  },
+  // Sample orders for TOMORROW - repartidor Juan Pérez (id: 1)
+  {
+    id: 105,
+    orderNumber: '0001-00000105',
+    clientId: 1,
+    clientName: 'Bar El Refugio',
+    clientAddress: 'Av. Montes de Oca 1234, Barracas',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 1, productName: 'Speed 250ml', quantity: 8, pricePerUnit: 1080, priceList: PRICE_LISTS.LISTA_B, subtotal: 8640 }
+    ],
+    subtotal: 8640,
+    discountPercent: 0,
+    discount: 0,
+    total: 8640,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: new Date(Date.now() + 86400000).toISOString(),
+    deliveredAt: null,
+    notes: 'Entrega programada'
+  },
+  {
+    id: 106,
+    orderNumber: '0001-00000106',
+    clientId: 5,
+    clientName: 'Minimercado Avenida',
+    clientAddress: 'Av. Independencia 890, Constitución',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 1, productName: 'Speed 250ml', quantity: 15, pricePerUnit: 1080, priceList: PRICE_LISTS.LISTA_B, subtotal: 16200 },
+      { productId: 2, productName: 'Speed XL 473ml', quantity: 10, pricePerUnit: 1620, priceList: PRICE_LISTS.LISTA_B, subtotal: 16200 }
+    ],
+    subtotal: 32400,
+    discountPercent: 0,
+    discount: 0,
+    total: 32400,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: new Date(Date.now() + 86400000).toISOString(),
+    deliveredAt: null,
+    notes: ''
+  },
+  {
+    id: 107,
+    orderNumber: '0001-00000107',
+    clientId: 3,
+    clientName: 'Club La Noche',
+    clientAddress: 'Caseros 789, Parque Patricios',
+    zone: ZONES.SUR.id,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    status: ORDER_STATUS.PENDIENTE,
+    paymentStatus: PAYMENT_STATUS.PENDIENTE,
+    orderType: ORDER_TYPE.NORMAL,
+    items: [
+      { productId: 1, productName: 'Speed 250ml', quantity: 24, pricePerUnit: 1140, priceList: PRICE_LISTS.LISTA_A, subtotal: 27360 }
+    ],
+    subtotal: 27360,
+    discountPercent: 0,
+    discount: 0,
+    total: 27360,
+    paymentMethod: null,
+    paymentAmount: 0,
+    change: 0,
+    invoiceType: null,
+    invoiceNumber: null,
+    createdAt: new Date(Date.now() + 86400000).toISOString(),
+    deliveredAt: null,
+    notes: 'Pedido grande para evento'
   }
 ];
 
@@ -1708,6 +2008,119 @@ export const mockGastos = [
     comprobante: 'ticket_peaje_007.jpg',
     estado: 'Aprobado',
     observaciones: null
+  },
+  // Sample expenses for TODAY - repartidor Juan Pérez (id: 1)
+  {
+    id: 8,
+    fecha: new Date().toISOString(),
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    tipo: 'Nafta',
+    monto: 18500,
+    descripcion: 'Carga de nafta completa - Shell Barracas',
+    comprobante: 'ticket_nafta_008.jpg',
+    estado: 'Pendiente',
+    observaciones: null
+  },
+  {
+    id: 9,
+    fecha: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    tipo: 'Peaje',
+    monto: 950,
+    descripción: 'Peaje Autopista Buenos Aires - La Plata',
+    comprobante: 'ticket_peaje_009.jpg',
+    estado: 'Pendiente',
+    observaciones: null
+  }
+];
+
+// Mock Pagos (Payments) - NEW FEATURE: Payment tracking
+export const mockPagos = [
+  {
+    id: 1,
+    fecha: '2025-12-03T14:30:00',
+    hora: '14:30',
+    clienteId: 8,
+    clienteName: 'Disco Quantum',
+    pedidoId: 8,
+    monto: 30000,
+    metodo: PAYMENT_METHODS.EFT_TRANS,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    comprobante: 'transfer_quantum_120325.jpg',
+    notas: 'Pago parcial deuda antigua'
+  },
+  {
+    id: 2,
+    fecha: '2025-12-02T11:15:00',
+    hora: '11:15',
+    clienteId: 10,
+    clienteName: 'Bar Británico',
+    pedidoId: 9,
+    monto: 8640,
+    metodo: PAYMENT_METHODS.EFECTIVO,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    comprobante: null,
+    notas: ''
+  },
+  {
+    id: 3,
+    fecha: '2025-12-02T09:00:00',
+    hora: '09:00',
+    clienteId: 1,
+    clienteName: 'Bar El Refugio',
+    pedidoId: 1,
+    monto: 6000,
+    metodo: PAYMENT_METHODS.EFECTIVO,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    comprobante: null,
+    notas: ''
+  },
+  {
+    id: 4,
+    fecha: '2025-12-01T16:45:00',
+    hora: '16:45',
+    clienteId: 16,
+    clienteName: 'Club Groove',
+    pedidoId: 12,
+    monto: 92000,
+    metodo: PAYMENT_METHODS.EFT_TRANS,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    comprobante: 'transfer_groove_120125.jpg',
+    notas: ''
+  },
+  {
+    id: 5,
+    fecha: '2025-11-30T13:00:00',
+    hora: '13:00',
+    clienteId: 5,
+    clienteName: 'Restaurant La Esquina',
+    pedidoId: 5,
+    monto: 36000,
+    metodo: PAYMENT_METHODS.EFECTIVO,
+    repartidorId: 2,
+    repartidorName: 'Pedro Gómez',
+    comprobante: null,
+    notas: ''
+  },
+  {
+    id: 6,
+    fecha: '2025-11-29T10:30:00',
+    hora: '10:30',
+    clienteId: 12,
+    clienteName: 'Restaurant Parrilla del Sur',
+    pedidoId: null,
+    monto: 15000,
+    metodo: PAYMENT_METHODS.EFECTIVO,
+    repartidorId: 1,
+    repartidorName: 'Juan Pérez',
+    comprobante: null,
+    notas: 'Pago a cuenta - no vinculado a pedido específico'
   }
 ];
 
@@ -1801,6 +2214,7 @@ export default {
   mockCobranzas,
   mockFacturas,
   mockGastos,
+  mockPagos,
   mockSalesSummary,
   mockRecentTransactions,
   getClientsByZone,

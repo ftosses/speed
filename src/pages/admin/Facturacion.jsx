@@ -91,20 +91,30 @@ const Facturacion = () => {
   };
 
   const tipoBodyTemplate = (rowData) => {
-    const tipoConfig = {
-      'A': { severity: 'info', icon: '🔵' },
-      'B': { severity: 'success', icon: '🟢' },
-      'C': { severity: 'warning', icon: '🟡' },
-      'REMITO': { severity: 'secondary', icon: '📋' }
-    };
-
-    const config = tipoConfig[rowData.tipo] || { severity: 'secondary', icon: '' };
+    // Show Transferencias badge for Tipo A and B
+    const showTransferencias = rowData.tipo === 'A' || rowData.tipo === 'B';
 
     return (
-      <Tag
-        value={`${config.icon} Tipo ${rowData.tipo}`}
-        severity={config.severity}
-      />
+      <div className="flex flex-column gap-1">
+        <Tag
+          value={`Tipo ${rowData.tipo}`}
+          style={{
+            backgroundColor: '#F7F7F7',
+            color: '#374151',
+            border: 'none'
+          }}
+        />
+        {showTransferencias && (
+          <Tag
+            value="Transferencias"
+            style={{
+              backgroundColor: '#F7F7F7',
+              color: '#374151',
+              border: 'none'
+            }}
+          />
+        )}
+      </div>
     );
   };
 
@@ -151,7 +161,15 @@ const Facturacion = () => {
       <div className="flex gap-2">
         <Button
           icon="pi pi-eye"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Ver detalle"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -161,7 +179,15 @@ const Facturacion = () => {
         />
         <Button
           icon="pi pi-download"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Descargar PDF"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -176,15 +202,12 @@ const Facturacion = () => {
   const header = (
     <div className="flex justify-content-between align-items-center">
       <div className="flex gap-2 align-items-center flex-wrap">
-        <span className="p-input-icon-left">
-          <i className="pi pi-search" />
-          <InputText
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            placeholder="Buscar factura..."
-            className="w-full"
-          />
-        </span>
+        <InputText
+          value={globalFilter}
+          onChange={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Buscar..."
+          className="filter-compact filter-search"
+        />
         <Dropdown
           value={selectedTipo}
           onChange={(e) => setSelectedTipo(e.value)}
@@ -195,8 +218,9 @@ const Facturacion = () => {
               value: INVOICE_TYPES[key]
             }))
           ]}
-          placeholder="Filtrar por tipo"
+          placeholder="Tipo"
           showClear={!!selectedTipo}
+          className="filter-compact"
         />
         <Dropdown
           value={selectedEstado}
@@ -208,8 +232,9 @@ const Facturacion = () => {
             { label: 'Anulada', value: 'anulada' },
             { label: 'Error', value: 'error' }
           ]}
-          placeholder="Filtrar por estado"
+          placeholder="Estado"
           showClear={!!selectedEstado}
+          className="filter-compact"
         />
       </div>
     </div>
@@ -243,54 +268,54 @@ const Facturacion = () => {
           header="N° Factura"
           body={numeroBodyTemplate}
           sortable
-          style={{ minWidth: '180px' }}
+          style={{ minWidth: '140px', width: '140px' }}
         />
         <Column
           field="fecha"
           header="Fecha"
           body={fechaBodyTemplate}
           sortable
-          style={{ minWidth: '120px' }}
+          style={{ minWidth: '100px', width: '100px' }}
         />
         <Column
           field="clienteName"
           header="Cliente"
           body={clienteBodyTemplate}
           sortable
-          style={{ minWidth: '200px' }}
+          style={{ minWidth: '160px', width: '160px' }}
         />
         <Column
           field="tipo"
           header="Tipo"
           body={tipoBodyTemplate}
           sortable
-          style={{ minWidth: '120px' }}
+          style={{ minWidth: '100px', width: '100px' }}
         />
         <Column
           field="monto"
           header="Monto"
           body={montoBodyTemplate}
           sortable
-          style={{ minWidth: '120px' }}
+          style={{ minWidth: '110px', width: '110px' }}
         />
         <Column
           field="cae"
           header="CAE"
           body={caeBodyTemplate}
-          style={{ minWidth: '180px' }}
+          style={{ minWidth: '140px', width: '140px' }}
         />
         <Column
           field="estado"
           header="Estado"
           body={estadoBodyTemplate}
           sortable
-          style={{ minWidth: '130px' }}
+          style={{ minWidth: '110px', width: '110px' }}
         />
         <Column
           header="Acciones"
           body={actionsBodyTemplate}
           exportable={false}
-          style={{ minWidth: '180px' }}
+          style={{ minWidth: '100px', width: '100px' }}
         />
       </DataTable>
 

@@ -8,6 +8,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Dialog } from 'primereact/dialog';
 import { InputNumber } from 'primereact/inputnumber';
+import { Calendar } from 'primereact/calendar';
 import { mockCobranzas, mockClients } from '../../services/mockData';
 import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from '../../utils/constants';
 import { formatCurrency } from '../../utils/helpers';
@@ -25,6 +26,15 @@ const Cobros = () => {
   const [editedMonto, setEditedMonto] = useState(0);
   const [editedMetodo, setEditedMetodo] = useState('');
   const [editedUtilidad, setEditedUtilidad] = useState(0);
+  const [editedEstadoFacturacion, setEditedEstadoFacturacion] = useState('');
+  const [showNewCobroModal, setShowNewCobroModal] = useState(false);
+  const [newCobroData, setNewCobroData] = useState({
+    clienteId: null,
+    monto: 0,
+    fecha: new Date(),
+    metodo: '',
+    utilidad: 0
+  });
 
   useEffect(() => {
     let filteredCobros = mockCobranzas;
@@ -58,11 +68,45 @@ const Cobros = () => {
     setEditedMonto(e.data.monto);
     setEditedMetodo(e.data.metodo);
     setEditedUtilidad(e.data.utilidad || 0);
+    setEditedEstadoFacturacion(e.data.estadoFacturacion || 'Pendiente');
     setShowDetailModal(true);
   };
 
   const handleNewCobro = () => {
-    console.log('Registrar nuevo cobro');
+    setNewCobroData({
+      clienteId: null,
+      monto: 0,
+      fecha: new Date(),
+      metodo: '',
+      utilidad: 0
+    });
+    setShowNewCobroModal(true);
+  };
+
+  const handleSaveNewCobro = () => {
+    console.log('Guardando nuevo cobro:', newCobroData);
+    alert('Cobro registrado exitosamente');
+    setShowNewCobroModal(false);
+    setNewCobroData({
+      clienteId: null,
+      monto: 0,
+      fecha: new Date(),
+      metodo: '',
+      utilidad: 0
+    });
+  };
+
+  const handleFacturarNewCobro = () => {
+    console.log('Guardando y facturando nuevo cobro:', newCobroData);
+    alert('Cobro registrado y enviado a Facturación exitosamente');
+    setShowNewCobroModal(false);
+    setNewCobroData({
+      clienteId: null,
+      monto: 0,
+      fecha: new Date(),
+      metodo: '',
+      utilidad: 0
+    });
   };
 
   const handleSaveChanges = () => {
@@ -167,7 +211,15 @@ const Cobros = () => {
       <div className="flex gap-2">
         <Button
           icon="pi pi-eye"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Ver detalle"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -396,10 +448,21 @@ const Cobros = () => {
                 </div>
 
                 <div className="col-12 mb-3">
-                  <label className="font-bold mb-2 block">
+                  <label htmlFor="estadoFacturacion" className="font-bold mb-2 block">
                     Estado de Facturación
                   </label>
-                  {estadoFacturacionBodyTemplate(selectedCobro)}
+                  <Dropdown
+                    id="estadoFacturacion"
+                    value={editedEstadoFacturacion}
+                    options={[
+                      { label: 'Pendiente', value: 'Pendiente' },
+                      { label: 'Facturado', value: 'Facturado' },
+                      { label: 'No Facturar', value: 'No Facturar' }
+                    ]}
+                    onChange={(e) => setEditedEstadoFacturacion(e.value)}
+                    placeholder="Seleccionar estado"
+                    className="w-full"
+                  />
                 </div>
 
                 {selectedCobro.comprobante && (
@@ -446,6 +509,115 @@ const Cobros = () => {
             </div>
           </div>
         )}
+      </Dialog>
+
+      {/* Registrar Nuevo Cobro Modal */}
+      <Dialog
+        visible={showNewCobroModal}
+        onHide={() => setShowNewCobroModal(false)}
+        header="Registrar Nuevo Cobro"
+        style={{ width: '700px' }}
+        breakpoints={{ '960px': '75vw', '640px': '95vw' }}
+      >
+        <div className="p-4">
+          <div className="grid">
+            <div className="col-12 mb-3">
+              <label className="block text-sm font-semibold mb-2">Cliente *</label>
+              <Dropdown
+                value={newCobroData.clienteId}
+                options={mockClients.map(client => ({
+                  label: client.name,
+                  value: client.id
+                }))}
+                onChange={(e) => setNewCobroData({ ...newCobroData, clienteId: e.value })}
+                placeholder="Seleccionar cliente"
+                className="w-full"
+                filter
+                filterPlaceholder="Buscar cliente..."
+              />
+            </div>
+
+            <div className="col-12 md:col-6 mb-3">
+              <label className="block text-sm font-semibold mb-2">Monto *</label>
+              <InputNumber
+                value={newCobroData.monto}
+                onValueChange={(e) => setNewCobroData({ ...newCobroData, monto: e.value })}
+                mode="currency"
+                currency="ARS"
+                locale="es-AR"
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 md:col-6 mb-3">
+              <label className="block text-sm font-semibold mb-2">Fecha *</label>
+              <Calendar
+                value={newCobroData.fecha}
+                onChange={(e) => setNewCobroData({ ...newCobroData, fecha: e.value })}
+                showIcon
+                showTime
+                hourFormat="24"
+                dateFormat="dd/mm/yy"
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 md:col-6 mb-3">
+              <label className="block text-sm font-semibold mb-2">Método de Pago *</label>
+              <Dropdown
+                value={newCobroData.metodo}
+                options={[
+                  { label: '💵 Efectivo', value: PAYMENT_METHODS.EFECTIVO },
+                  { label: '📱 EFT/TRANS', value: PAYMENT_METHODS.EFT_TRANS },
+                  { label: '📝 Cheque', value: PAYMENT_METHODS.CHEQUE }
+                ]}
+                onChange={(e) => setNewCobroData({ ...newCobroData, metodo: e.value })}
+                placeholder="Seleccionar método"
+                className="w-full"
+              />
+            </div>
+
+            <div className="col-12 md:col-6 mb-3">
+              <label className="block text-sm font-semibold mb-2">Utilidad % *</label>
+              <InputNumber
+                value={newCobroData.utilidad}
+                onValueChange={(e) => setNewCobroData({ ...newCobroData, utilidad: e.value })}
+                mode="decimal"
+                minFractionDigits={0}
+                maxFractionDigits={2}
+                min={0}
+                max={100}
+                suffix="%"
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-content-between gap-2 mt-4">
+            <Button
+              label="FACTURAR"
+              icon="pi pi-file-check"
+              className="p-button-success"
+              onClick={handleFacturarNewCobro}
+              disabled={!newCobroData.clienteId || !newCobroData.monto || !newCobroData.metodo}
+            />
+            <div className="flex gap-2">
+              <Button
+                label="Cancelar"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setShowNewCobroModal(false)}
+              />
+              <Button
+                label="Guardar Cobro"
+                icon="pi pi-check"
+                className="p-button-danger"
+                onClick={handleSaveNewCobro}
+                disabled={!newCobroData.clienteId || !newCobroData.monto || !newCobroData.metodo}
+              />
+            </div>
+          </div>
+        </div>
       </Dialog>
     </div>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
@@ -11,16 +11,32 @@ const AdminLayout = () => {
   const { user, logout } = useAuth();
   const { selectedZone, switchZone, getAllZones } = useZone();
 
+  // Sidebar collapse state with localStorage persistence
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved === 'true';
+  });
+
   const zones = getAllZones();
 
+  // Persist sidebar state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', isSidebarCollapsed);
+  }, [isSidebarCollapsed]);
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   const menuItems = [
-    { label: 'Dashboard', icon: 'pi pi-th-large', path: '/admin/dashboard' },
+    { label: 'Home', icon: 'pi pi-th-large', path: '/admin/dashboard' },
     { label: 'Clientes', icon: 'pi pi-users', path: '/admin/clientes' },
     { label: 'Productos', icon: 'pi pi-box', path: '/admin/productos' },
     { label: 'Pedidos', icon: 'pi pi-shopping-cart', path: '/admin/pedidos' },
     { label: 'Repartidores', icon: 'pi pi-truck', path: '/admin/repartidores' },
     { label: 'Rutas del Día', icon: 'pi pi-map', path: '/admin/rutas' },
     { label: 'Cobros', icon: 'pi pi-money-bill', path: '/admin/cobros' },
+    { label: 'Deudores', icon: 'pi pi-exclamation-circle', path: '/admin/deudores' },
     { label: 'Gastos', icon: 'pi pi-wallet', path: '/admin/gastos' },
     { label: 'Facturación', icon: 'pi pi-file', path: '/admin/facturacion' },
     { label: 'Reportes', icon: 'pi pi-chart-line', path: '/admin/reportes' },
@@ -39,7 +55,7 @@ const AdminLayout = () => {
   return (
     <div className="admin-layout">
       {/* Sidebar */}
-      <div className="admin-sidebar">
+      <div className={`admin-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="admin-sidebar-header">
           <h2>🚚 Speed Unlimited</h2>
           <p>Panel de Administración</p>
@@ -51,6 +67,7 @@ const AdminLayout = () => {
               key={item.path}
               className={`admin-menu-item ${location.pathname === item.path ? 'active' : ''}`}
               onClick={() => navigate(item.path)}
+              title={isSidebarCollapsed ? item.label : ''}
             >
               <i className={item.icon}></i>
               <span>{item.label}</span>
@@ -60,7 +77,7 @@ const AdminLayout = () => {
       </div>
 
       {/* Main Content */}
-      <div className="admin-main">
+      <div className={`admin-main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         {/* Topbar with Zone Context Visual */}
         <div
           className="admin-topbar"
@@ -70,6 +87,14 @@ const AdminLayout = () => {
           }}
         >
           <div className="admin-topbar-left">
+            <Button
+              icon={isSidebarCollapsed ? 'pi pi-angle-right' : 'pi pi-angle-left'}
+              className="p-button-text p-button-rounded"
+              onClick={toggleSidebar}
+              tooltip={isSidebarCollapsed ? 'Expandir menú' : 'Contraer menú'}
+              tooltipOptions={{ position: 'bottom' }}
+              style={{ marginRight: '1rem' }}
+            />
             <h3 className="m-0">
               {menuItems.find(item => item.path === location.pathname)?.label || 'Speed Unlimited'}
             </h3>

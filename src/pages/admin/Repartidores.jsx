@@ -185,7 +185,15 @@ const Repartidores = () => {
       <div className="flex gap-2">
         <Button
           icon="pi pi-pencil"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Editar"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -195,7 +203,15 @@ const Repartidores = () => {
         />
         <Button
           icon="pi pi-trash"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Eliminar"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {

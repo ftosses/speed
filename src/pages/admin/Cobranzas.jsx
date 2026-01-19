@@ -144,7 +144,15 @@ const Cobranzas = () => {
       <div className="flex gap-2">
         <Button
           icon="pi pi-eye"
-          className="action-button"
+          className="p-button-text"
+          style={{
+            backgroundColor: '#F7F7F7',
+            border: '1px solid #F9F9F9',
+            color: '#E31E24',
+            borderRadius: '8px',
+            minHeight: '40px',
+            minWidth: '40px'
+          }}
           tooltip="Ver detalle"
           tooltipOptions={{ position: 'top' }}
           onClick={(e) => {
@@ -155,7 +163,15 @@ const Cobranzas = () => {
         {rowData.estado === 'pendiente' && (
           <Button
             icon="pi pi-check"
-            className="action-button"
+            className="p-button-text"
+            style={{
+              backgroundColor: '#F7F7F7',
+              border: '1px solid #F9F9F9',
+              color: '#E31E24',
+              borderRadius: '8px',
+              minHeight: '40px',
+              minWidth: '40px'
+            }}
             tooltip="Verificar"
             tooltipOptions={{ position: 'top' }}
             onClick={(e) => {

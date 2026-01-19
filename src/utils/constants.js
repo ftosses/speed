@@ -14,13 +14,12 @@ export const ZONES = {
 export const PRICE_LISTS = {
   LISTA_A: 'lista_a', // Standard price
   LISTA_B: 'lista_b', // -10% discount
-  LISTA_C: 'lista_c'  // -15% discount
+  // LISTA_C removed as per requirements
 };
 
 export const PRICE_LIST_LABELS = {
   [PRICE_LISTS.LISTA_A]: 'Lista A (Estándar)',
-  [PRICE_LISTS.LISTA_B]: 'Lista B (-10%)',
-  [PRICE_LISTS.LISTA_C]: 'Lista C (-15%)'
+  [PRICE_LISTS.LISTA_B]: 'Lista B (-10%)'
 };
 
 export const CATEGORIES = {
@@ -41,13 +40,17 @@ export const PRODUCTS = [
     description: 'Bebida energizante 250ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 1200,
-      [PRICE_LISTS.LISTA_B]: 1080,
-      [PRICE_LISTS.LISTA_C]: 1020
+      [PRICE_LISTS.LISTA_B]: 1080
     },
+    costo: 780,
+    unidad: 'packs de latas',
     unit: 'lata',
     packSize: 24, // latas per pack
-    stock: 245,
-    minStock: 50
+    stock: 10, // 10 packs = 240 latas
+    minStock: 3,
+    costosFijos: 50,
+    costosVariables: 30,
+    impuestoGanancias: 15
   },
   {
     id: 2,
@@ -57,13 +60,17 @@ export const PRODUCTS = [
     description: 'Bebida energizante XL 473ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 1800,
-      [PRICE_LISTS.LISTA_B]: 1620,
-      [PRICE_LISTS.LISTA_C]: 1530
+      [PRICE_LISTS.LISTA_B]: 1620
     },
+    costo: 1200,
+    unidad: 'packs de latas',
     unit: 'lata',
     packSize: 24,
-    stock: 180,
-    minStock: 40
+    stock: 8, // 8 packs
+    minStock: 2,
+    costosFijos: 80,
+    costosVariables: 45,
+    impuestoGanancias: 20
   },
   {
     id: 3,
@@ -73,13 +80,17 @@ export const PRODUCTS = [
     description: 'Speed Cola 350ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 1200,
-      [PRICE_LISTS.LISTA_B]: 1080,
-      [PRICE_LISTS.LISTA_C]: 1020
+      [PRICE_LISTS.LISTA_B]: 1080
     },
+    costo: 750,
+    unidad: 'packs de latas',
     unit: 'lata',
     packSize: 24,
-    stock: 150,
-    minStock: 40
+    stock: 6, // 6 packs
+    minStock: 2,
+    costosFijos: 55,
+    costosVariables: 35,
+    impuestoGanancias: 18
   },
   {
     id: 4,
@@ -89,13 +100,17 @@ export const PRODUCTS = [
     description: 'Agua mineral 500ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 800,
-      [PRICE_LISTS.LISTA_B]: 720,
-      [PRICE_LISTS.LISTA_C]: 680
+      [PRICE_LISTS.LISTA_B]: 720
     },
+    costo: 450,
+    unidad: 'packs de latas',
     unit: 'botella',
     packSize: 12,
-    stock: 89,
-    minStock: 30
+    stock: 7, // 7 packs
+    minStock: 3,
+    costosFijos: 35,
+    costosVariables: 20,
+    impuestoGanancias: 12
   },
   {
     id: 5,
@@ -105,13 +120,17 @@ export const PRODUCTS = [
     description: 'Champagne 750ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 3900,
-      [PRICE_LISTS.LISTA_B]: 3510,
-      [PRICE_LISTS.LISTA_C]: 3315
+      [PRICE_LISTS.LISTA_B]: 3510
     },
+    costo: 2400,
+    unidad: 'botellas',
     unit: 'botella',
     packSize: 6,
-    stock: 45,
-    minStock: 10
+    stock: 45, // 45 botellas
+    minStock: 10,
+    costosFijos: 120,
+    costosVariables: 80,
+    impuestoGanancias: 45
   },
   {
     id: 6,
@@ -121,13 +140,17 @@ export const PRODUCTS = [
     description: 'Holmöser Licor 750ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 4200,
-      [PRICE_LISTS.LISTA_B]: 3780,
-      [PRICE_LISTS.LISTA_C]: 3570
+      [PRICE_LISTS.LISTA_B]: 3780
     },
+    costo: 2800,
+    unidad: 'botellas',
     unit: 'botella',
     packSize: 6,
-    stock: 32,
-    minStock: 10
+    stock: 32, // 32 botellas
+    minStock: 10,
+    costosFijos: 140,
+    costosVariables: 95,
+    impuestoGanancias: 50
   },
   {
     id: 7,
@@ -137,13 +160,17 @@ export const PRODUCTS = [
     description: 'Holmöser Petaca 200ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 1500,
-      [PRICE_LISTS.LISTA_B]: 1350,
-      [PRICE_LISTS.LISTA_C]: 1275
+      [PRICE_LISTS.LISTA_B]: 1350
     },
+    costo: 900,
+    unidad: 'botellas',
     unit: 'petaca',
     packSize: 12,
-    stock: 68,
-    minStock: 20
+    stock: 68, // 68 petacas
+    minStock: 20,
+    costosFijos: 60,
+    costosVariables: 40,
+    impuestoGanancias: 22
   },
   {
     id: 8,
@@ -153,13 +180,17 @@ export const PRODUCTS = [
     description: 'Smirnoff Vodka 750ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 5500,
-      [PRICE_LISTS.LISTA_B]: 4950,
-      [PRICE_LISTS.LISTA_C]: 4675
+      [PRICE_LISTS.LISTA_B]: 4950
     },
+    costo: 3500,
+    unidad: 'botellas',
     unit: 'botella',
     packSize: 6,
-    stock: 28,
-    minStock: 10
+    stock: 28, // 28 botellas
+    minStock: 10,
+    costosFijos: 180,
+    costosVariables: 120,
+    impuestoGanancias: 65
   },
   {
     id: 9,
@@ -169,13 +200,17 @@ export const PRODUCTS = [
     description: 'Fernet 750ml',
     prices: {
       [PRICE_LISTS.LISTA_A]: 4800,
-      [PRICE_LISTS.LISTA_B]: 4320,
-      [PRICE_LISTS.LISTA_C]: 4080
+      [PRICE_LISTS.LISTA_B]: 4320
     },
+    costo: 3000,
+    unidad: 'botellas',
     unit: 'botella',
     packSize: 12,
-    stock: 2, // Critical stock
-    minStock: 15
+    stock: 2, // Critical stock - 2 botellas
+    minStock: 15,
+    costosFijos: 150,
+    costosVariables: 100,
+    impuestoGanancias: 55
   }
 ];
 

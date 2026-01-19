@@ -54,11 +54,14 @@
   border-color: var(--speed-danger) !important;
 }
 
-/* Action buttons - WHITE/LIGHT GRAY background with DARK GRAY icon */
-.action-button {
-  background-color: #F8F9FA !important;
-  border: 1px solid #E5E7EB !important;
-  color: #374151 !important;
+/* Action buttons - LIGHT GRAY background with RED icon */
+/* High specificity to override PrimeReact defaults */
+.p-button.action-button,
+button.action-button,
+.action-button.p-button {
+  background-color: #F7F7F7 !important;
+  border: 1px solid #F9F9F9 !important;
+  color: #E31E24 !important;
   min-height: 40px;
   min-width: 40px;
   border-radius: 6px !important;
@@ -66,28 +69,50 @@
   padding: 0.5rem !important;
 }
 
-.action-button:hover {
-  background-color: #F8F9FA !important;
+.p-button.action-button:enabled:hover,
+button.action-button:hover,
+.action-button.p-button:hover {
+  background-color: #F7F7F7 !important;
   border-color: #E31E24 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  transform: none !important;
 }
 
-/* All action buttons use dark gray icon color */
-.action-button.view-button,
-.action-button.edit-button,
-.action-button.delete-button {
-  color: #374151 !important;
+.p-button.action-button:enabled:active,
+button.action-button:active,
+.action-button.p-button:active {
+  background-color: #F7F7F7 !important;
+  border-color: #E31E24 !important;
 }
 
-.action-button .pi {
-  color: #374151 !important;
-  font-size: 1rem;
+/* All action buttons use RED icon color - high specificity */
+.p-button.action-button .p-button-icon,
+.p-button.action-button .pi,
+button.action-button .pi,
+.action-button.p-button .pi,
+.action-button .p-button-icon {
+  color: #E31E24 !important;
+  font-size: 1rem !important;
 }
 
-/* Action button hover state - icon stays dark gray */
-.action-button:hover .pi {
-  color: #374151 !important;
+/* Action button hover state - icon stays RED */
+.p-button.action-button:hover .p-button-icon,
+.p-button.action-button:hover .pi,
+button.action-button:hover .pi,
+.action-button.p-button:hover .pi {
+  color: #E31E24 !important;
+}
+
+/* Override any PrimeReact text button styles */
+.p-button-text.action-button {
+  background-color: #F7F7F7 !important;
+  border: 1px solid #F9F9F9 !important;
+  color: #E31E24 !important;
+}
+
+.p-button-text.action-button .pi,
+.p-button-text.action-button .p-button-icon {
+  color: #E31E24 !important;
 }
 
 /* Clickable rows */
@@ -240,6 +265,50 @@
   background: var(--speed-red);
 }
 
+/* Compact Filter Styles - Global */
+.filter-compact {
+  min-width: 140px !important;
+  max-width: 200px !important;
+  height: 38px !important;
+  font-size: 0.875rem !important;
+}
+
+.filter-compact .p-inputtext {
+  height: 38px !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.filter-compact.p-inputtext {
+  height: 38px !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 0.75rem !important;
+}
+
+.filter-compact .p-dropdown {
+  height: 38px !important;
+  font-size: 0.875rem !important;
+}
+
+.filter-compact.p-dropdown {
+  height: 38px !important;
+  font-size: 0.875rem !important;
+}
+
+.filter-compact .p-dropdown .p-dropdown-label {
+  padding: 0.5rem 0.75rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* Remove search icon from filter inputs */
+.filter-search {
+  width: 200px !important;
+}
+
+.filter-search .p-inputtext {
+  padding-left: 0.75rem !important;
+}
+
 /* Utility classes */
 .text-speed-red {
   color: var(--speed-red);
@@ -302,6 +371,12 @@
 .stat-card-icon {
   font-size: 2.5rem;
   opacity: 0.2;
+}
+
+/* Price styling */
+.price {
+  color: var(--speed-red);
+  font-weight: 600;
 }
 
 /* Mobile responsiveness */
